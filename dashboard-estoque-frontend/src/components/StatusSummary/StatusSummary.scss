@@ -1,0 +1,137 @@
+.status-summary {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin: 2rem 0;
+
+  h3 {
+    margin: 0 0 1.5rem 0;
+    color: #2c5aa0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .status-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      transition: all 0.3s ease;
+    }
+
+    &.critico {
+      &::before {
+        background: #dc3545;
+      }
+      &:hover {
+        border-color: #dc3545;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.2);
+      }
+    }
+
+    &.baixo {
+      &::before {
+        background: #fd7e14;
+      }
+      &:hover {
+        border-color: #fd7e14;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(253, 126, 20, 0.2);
+      }
+    }
+
+    &.adequado {
+      &::before {
+        background: #28a745;
+      }
+      &:hover {
+        border-color: #28a745;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.2);
+      }
+    }
+
+    &.excesso {
+      &::before {
+        background: #17a2b8;
+      }
+      &:hover {
+        border-color: #17a2b8;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(23, 162, 184, 0.2);
+      }
+    }
+
+    &.sem-vendas {
+      &::before {
+        background: #6c757d;
+      }
+      &:hover {
+        border-color: #6c757d;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(108, 117, 125, 0.2);
+      }
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+
+      .status-icon {
+        font-size: 1.2rem;
+      }
+
+      .status-title {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    .status-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2c5aa0;
+      margin-bottom: 0.25rem;
+    }
+
+    .status-percentage {
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+  }
+}

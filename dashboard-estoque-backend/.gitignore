@@ -1,0 +1,4 @@
+venv
+.env
+__pyacha__/
+db.sqlite3

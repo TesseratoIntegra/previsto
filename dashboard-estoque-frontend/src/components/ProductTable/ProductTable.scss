@@ -1,0 +1,237 @@
+// Removendo imports que causam erro
+// @import '../../styles/variables';
+// @import '../../styles/mixins';
+
+.product-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  
+  &.scrollable {
+    max-height: 600px; // Altura máxima para a tabela completa
+    overflow-y: auto;   // Scroll vertical
+    overflow-x: auto;   // Scroll horizontal se necessário
+  }
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    background: linear-gradient(135deg, #2c5aa0, #1e3f73);
+    color: white;
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background: linear-gradient(135deg, #245291, #173357);
+    }
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+    
+    &.produto-nome {
+      max-width: 200px;
+      word-wrap: break-word;
+      font-weight: 500;
+      
+      &.produto-fallback {
+        color: #6c757d;
+        font-style: italic;
+      }
+      
+      .fallback-indicator {
+        color: #dc3545;
+        font-weight: bold;
+        cursor: help;
+      }
+    }
+
+    &.sugestao-destaque {
+      font-weight: 600;
+      color: #2c5aa0;
+    }
+  }
+
+  tr {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(44, 90, 160, 0.05);
+    }
+
+    &:nth-child(even) {
+      background-color: #f8f9fa;
+      
+      &:hover {
+        background-color: rgba(44, 90, 160, 0.08);
+      }
+    }
+  }
+}
+
+// Status badges
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.status-critico {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  &.status-baixo {
+    background-color: #fd7e14;
+    color: white;
+  }
+
+  &.status-adequado {
+    background-color: #28a745;
+    color: white;
+  }
+
+  &.status-excesso {
+    background-color: #17a2b8;
+    color: white;
+  }
+
+  &.status-sem-vendas {
+    background-color: #6c757d;
+    color: white;
+  }
+}
+
+// Priority badges
+.priority-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.priority-alta {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  &.priority-media {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  &.priority-baixa {
+    background-color: #28a745;
+    color: white;
+  }
+}
+
+.product-table-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  p {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+.table-note {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1565c0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .note-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+// Scrollbar customização
+.table-wrapper.scrollable {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .product-table {
+    font-size: 0.8rem;
+
+    th,
+    td {
+      padding: 0.5rem 0.25rem;
+    }
+
+    .produto-nome {
+      max-width: 120px;
+    }
+  }
+
+  .table-wrapper.scrollable {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-table {
+    th,
+    td {
+      padding: 0.4rem 0.2rem;
+    }
+  }
+}
