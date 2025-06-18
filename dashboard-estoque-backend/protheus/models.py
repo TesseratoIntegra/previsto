@@ -6,7 +6,7 @@ class ProtheusSB1(models.Model):
     Modelo para mapear a tabela SB1 (Produtos) do Protheus
     """
     B1_FILIAL = models.CharField(max_length=2, verbose_name='Filial')
-    B1_COD = models.CharField(max_length=15, verbose_name='Código do Produto')
+    B1_COD = models.CharField(max_length=15, primary_key=True, verbose_name='Código do Produto')
     B1_DESC = models.CharField(max_length=100, verbose_name='Descrição do Produto')
     B1_TIPO = models.CharField(max_length=2, verbose_name='Tipo do Produto')
     B1_UM = models.CharField(max_length=2, verbose_name='Unidade de Medida')
@@ -29,7 +29,7 @@ class ProtheusSB2(models.Model):
     Modelo para mapear a tabela SB2 (Saldos em Estoque) do Protheus
     """
     B2_FILIAL = models.CharField(max_length=2, verbose_name='Filial')
-    B2_COD = models.CharField(max_length=15, verbose_name='Código do Produto')
+    B2_COD = models.CharField(max_length=15, primary_key=True, verbose_name='Código do Produto')
     B2_LOCAL = models.CharField(max_length=2, verbose_name='Local')
     B2_QATU = models.FloatField(verbose_name='Quantidade Atual em Estoque')
     B2_RESERVA = models.FloatField(verbose_name='Quantidade Reservada')
@@ -53,7 +53,7 @@ class ProtheusSD3(models.Model):
     Armazena lançamentos de entradas, saídas, ajustes, transferências, etc.
     """
 
-    D3_COD = models.CharField(max_length=15, verbose_name='Código do produto')
+    D3_COD = models.CharField(max_length=15, primary_key=True, verbose_name='Código do produto')
     D3_TM = models.CharField(max_length=2, verbose_name='Tipo de movimento')
     D3_EMISSAO = models.DateField(verbose_name='Data da movimentação')
     D3_QUANT = models.FloatField(verbose_name='Quantidade movimentada')
