@@ -19,10 +19,17 @@ class ProtheusSB2Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
     """
     Serializador para os dados da tabela SB2 (Saldos em Estoque).
     """
+    B1_DESC = serializers.SerializerMethodField()
 
     class Meta:
         model = ProtheusSB2
-        fields = '__all__'
+        fields = ['B2_FILIAL', 'B2_COD', 'B1_DESC',
+                  'B2_LOCAL', 'B2_QATU', 'B2_RESERVA', 'B2_QPEDVEN'
+                ]
+
+    def get_B1_DESC(self, obj):
+        produto = ProtheusSB1.objects.filter(B1_COD=obj.B2_COD, B1_FILIAL=obj.B2_FILIAL).first()
+        return produto.B1_DESC if produto else None
 
 
 class ProtheusSD3Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
