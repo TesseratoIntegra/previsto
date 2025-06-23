@@ -7,7 +7,7 @@ from protheus.models import ProtheusSB1, ProtheusSB2, ProtheusSD3
 
 class ProtheusSB1Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
     """
-    Serializador para os dados da tabela SB1 (Produtos).
+    Serializador para os dados da tabela SB1 (products).
     """
 
     class Meta:
@@ -28,8 +28,8 @@ class ProtheusSB2Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
                 ]
 
     def get_B1_DESC(self, obj):
-        produto = ProtheusSB1.objects.filter(B1_COD=obj.B2_COD, B1_FILIAL=obj.B2_FILIAL).first()
-        return produto.B1_DESC if produto else None
+        product = ProtheusSB1.objects.filter(B1_COD=obj.B2_COD, B1_FILIAL=obj.B2_FILIAL).first()
+        return product.B1_DESC if product else None
 
 
 class ProtheusSD3Serializer(StripCharFieldsMixin, serializers.ModelSerializer):

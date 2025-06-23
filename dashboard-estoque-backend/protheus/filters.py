@@ -6,7 +6,7 @@ from protheus.models import ProtheusSD3, ProtheusSB1, ProtheusSB2
 class StockMovementFilter(filters.FilterSet):
     """
     Filtros personalizados para os campos da tabela ProtheusSD3 (movimentações de estoque).
-    
+
     Todos os filtros aplicam .strip() e lookup com 'startswith', garantindo compatibilidade
     com colunas do tipo CHAR no Oracle, que possuem preenchimento por espaços à direita.
     """
@@ -14,6 +14,7 @@ class StockMovementFilter(filters.FilterSet):
     D3_COD = filters.CharFilter(method='filter_cod')
     D3_DOC = filters.CharFilter(method='filter_doc')
     D3_LOCAL = filters.CharFilter(method='filter_local')
+    D3_TM = filters.CharFilter(method='filter_tm')
 
     def filter_cod(self, queryset, name, value):
         return queryset.filter(**{f"{name}__startswith": value.strip()})
@@ -24,9 +25,12 @@ class StockMovementFilter(filters.FilterSet):
     def filter_local(self, queryset, name, value):
         return queryset.filter(**{f"{name}__startswith": value.strip()})
 
+    def filter_tm(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
     class Meta:
         model = ProtheusSD3
-        fields = ['D3_COD', 'D3_DOC', 'D3_LOCAL']
+        fields = ['D3_COD', 'D3_DOC', 'D3_LOCAL', 'D3_TM']
 
 
 class ProductFilter(filters.FilterSet):
@@ -58,7 +62,7 @@ class ProductFilter(filters.FilterSet):
 class StockFilter(filters.FilterSet):
     """
     Filtros personalizados para os campos da tabela ProtheusSB2 (saldos em estoque).
-    
+
     Todos os filtros aplicam .strip() e lookup com 'startswith', garantindo compatibilidade
     com colunas do tipo CHAR no Oracle, que possuem preenchimento por espaços à direita.
     """
