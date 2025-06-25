@@ -22,6 +22,10 @@ class StockView(ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = StockFilter
 
+    def get_queryset(self):
+        queryset = ProtheusSB2.objects.exclude(D_E_L_E_T='*')
+        return self.filter_queryset(queryset)
+
 
 class StockMovementView(ListAPIView):
     """
@@ -36,7 +40,11 @@ class StockMovementView(ListAPIView):
     def get_queryset(self):
         today = date.today()
         four_months_ago = today - relativedelta(months=1)
-        queryset = ProtheusSD3.objects.filter(D3_EMISSAO__gte=four_months_ago)
+        queryset = ProtheusSD3.objects.filter(
+            D3_EMISSAO__gte=four_months_ago
+        ).exclude(
+            **{'D_E_L_E_T': '*'}
+        )
 
         return self.filter_queryset(queryset).order_by('-D3_EMISSAO')
 

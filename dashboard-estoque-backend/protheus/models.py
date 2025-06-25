@@ -34,6 +34,7 @@ class ProtheusSB2(models.Model):
     B2_QATU = models.FloatField(verbose_name='Quantidade Atual em Estoque')
     B2_RESERVA = models.FloatField(verbose_name='Quantidade Reservada')
     B2_QPEDVEN = models.FloatField(verbose_name='Quantidade em Pedido de Venda')
+    D_E_L_E_T = models.CharField(max_length=1, db_column='D_E_L_E_T_', blank=True, null=True)
 
     class Meta:
         managed = False
@@ -60,6 +61,7 @@ class ProtheusSD3(models.Model):
     D3_CF = models.CharField(max_length=10, verbose_name='Código fiscal')
     D3_DOC = models.CharField(max_length=9, verbose_name='Documento')
     D3_LOCAL = models.CharField(max_length=2, verbose_name='Local (depósito)')
+    D_E_L_E_T = models.CharField(max_length=1, db_column='D_E_L_E_T_', blank=True, null=True)
 
     class Meta:
         managed = False
