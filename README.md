@@ -171,7 +171,7 @@ Este módulo `protheus` integra dados diretamente do sistema ERP **Protheus** vi
   GET /api/v1/products/?B1_FILIAL=01&B1_TIPO=PA
   ```
 
-##### 🔁 Movimentações (`/api/v1/stocks_moviment/`)
+##### 🔁 Movimentações (`/api/v1/stock-moviments/`)
 
 - Filtrar por produto:
   ```http
