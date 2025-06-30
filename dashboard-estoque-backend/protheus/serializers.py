@@ -1,42 +1,29 @@
 from rest_framework import serializers
 
-from protheus.mixins import StripCharFieldsMixin
 
-from protheus.models import ProtheusSB1, ProtheusSB2, ProtheusSD3
-
-
-class ProtheusSB1Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
-    """
-    Serializador para os dados da tabela SB1 (products).
-    """
-
-    class Meta:
-        model = ProtheusSB1
-        fields = '__all__'
+class StockSummarySerializer(serializers.Serializer):
+    code = serializers.CharField()
+    description = serializers.CharField()
+    balance = serializers.FloatField()
+    filial = serializers.CharField(required=False, allow_blank=True)
+    local = serializers.CharField(required=False, allow_blank=True)
 
 
-class ProtheusSB2Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
-    """
-    Serializador para os dados da tabela SB2 (Saldos em Estoque).
-    """
-    B1_DESC = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ProtheusSB2
-        fields = ['B2_FILIAL', 'B2_COD', 'B1_DESC',
-                  'B2_LOCAL', 'B2_QATU', 'B2_RESERVA', 'B2_QPEDVEN'
-                ]
-
-    def get_B1_DESC(self, obj):
-        product = ProtheusSB1.objects.filter(B1_COD=obj.B2_COD, B1_FILIAL=obj.B2_FILIAL).first()
-        return product.B1_DESC if product else None
+class SalesSumarySerializer(serializers.Serializer):
+    code = serializers.CharField()
+    description = serializers.CharField()
+    quantity = serializers.FloatField()
+    value = serializers.FloatField()
+    filial = serializers.CharField(required=False, allow_blank=True)
+    local = serializers.CharField(required=False, allow_blank=True)  # Adicionado local
 
 
-class ProtheusSD3Serializer(StripCharFieldsMixin, serializers.ModelSerializer):
-    """
-    Serializador para os dados da tabela SD3 (Movimentações de Estoque).
-    """
-
-    class Meta:
-        model = ProtheusSD3
-        fields = '__all__'
+class StockMovementSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    movement_type = serializers.CharField()
+    date = serializers.DateField()
+    quantity = serializers.FloatField()
+    fiscal_code = serializers.CharField()
+    document = serializers.CharField()
+    location = serializers.CharField()
+    filial = serializers.CharField(required=False, allow_blank=True)

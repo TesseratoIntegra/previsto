@@ -70,48 +70,48 @@ const FileUpload = ({ label, onFileSelect, acceptedFormats, icon }) => {
 
   return (
     <div className="file-upload-container">
-      <div
-        className={`file-upload-area ${isDragOver ? 'drag-over' : ''} ${selectedFile ? 'has-file' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={handleClick}
-      >
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileInputChange}
-          accept={acceptedFormats}
-          style={{ display: 'none' }}
-        />
-        
-        <div className="upload-icon">
-          {selectedFile ? '✅' : getIcon()}
-        </div>
-        
-        <div className="upload-content">
-          <h3 className="upload-label">{label}</h3>
+        <div
+          className={`file-upload-area ${isDragOver ? 'drag-over' : ''} ${selectedFile ? 'has-file' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={handleClick}
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileInputChange}
+            accept={acceptedFormats}
+            style={{ display: 'none' }}
+          />
           
-          {selectedFile ? (
-            <div className="file-info">
-              <div className="file-name">{selectedFile.name}</div>
-              <div className="file-size">{formatFileSize(selectedFile.size)}</div>
-              <div className="file-status">Arquivo carregado com sucesso!</div>
-            </div>
-          ) : (
-            <div className="upload-instructions">
-              <p className="main-text">Arraste e solte ou clique para selecionar</p>
-              <p className="format-text">Formatos aceitos: {acceptedFormats}</p>
+          <div className="upload-icon">
+            {selectedFile ? '✅' : getIcon()}
+          </div>
+          
+          <div className="upload-content">
+            <h3 className="upload-label">{label}</h3>
+            
+            {selectedFile ? (
+              <div className="file-info">
+                <div className="file-name">{selectedFile.name}</div>
+                <div className="file-size">{formatFileSize(selectedFile.size)}</div>
+                <div className="file-status">Arquivo carregado com sucesso!</div>
+              </div>
+            ) : (
+              <div className="upload-instructions">
+                <p className="main-text">Arraste e solte ou clique para selecionar</p>
+                <p className="format-text">Formatos aceitos: {acceptedFormats}</p>
+              </div>
+            )}
+          </div>
+          
+          {!selectedFile && (
+            <div className="upload-button">
+              <span>Selecionar Arquivo</span>
             </div>
           )}
         </div>
-        
-        {!selectedFile && (
-          <div className="upload-button">
-            <span>Selecionar Arquivo</span>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

@@ -1,198 +1,104 @@
-.file-upload-container {
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.file-upload {
   flex: 1;
-  min-width: 300px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-.file-upload-area {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 3px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  padding: 2.5rem 1.5rem;
+.upload-area {
+  @include card;
+  border: 2px dashed $border-color;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-height: 280px;
-  display: flex;
+  transition: $transition;
+  min-height: 200px;
+  @include flex-center;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 1rem;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, 
-      rgba(79, 172, 254, 0.1),
-      rgba(0, 242, 254, 0.1)
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
+  
   &:hover {
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  &.drag-over {
-    border-color: #4facfe;
-    background: rgba(79, 172, 254, 0.1);
-    transform: scale(1.02);
-    
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  &.has-file {
-    border-color: #00c851;
-    border-style: solid;
-    background: rgba(0, 200, 81, 0.1);
-    
-    &::before {
-      background: linear-gradient(45deg, 
-        rgba(0, 200, 81, 0.1),
-        rgba(0, 150, 60, 0.1)
-      );
-      opacity: 1;
-    }
-  }
-
-  .upload-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
-  }
-
-  &:hover .upload-icon {
-    transform: scale(1.1);
-  }
-
-  .upload-content {
-    z-index: 2;
-    position: relative;
-  }
-
-  .upload-label {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #2c5aa0;
-    margin: 0 0 1rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .upload-instructions {
-    .main-text {
-      font-size: 1rem;
-      color: #495057;
-      margin: 0 0 0.5rem 0;
-      font-weight: 600;
-    }
-
-    .format-text {
-      font-size: 0.85rem;
-      color: #6c757d;
-      margin: 0;
-      font-style: italic;
-    }
-  }
-
-  .file-info {
-    .file-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #2c5aa0;
-      margin-bottom: 0.5rem;
-      word-break: break-word;
-    }
-
-    .file-size {
-      font-size: 0.9rem;
-      color: #6c757d;
-      margin-bottom: 0.5rem;
-    }
-
-    .file-status {
-      font-size: 0.9rem;
-      color: #00c851;
-      font-weight: 600;
-      background: rgba(0, 200, 81, 0.1);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      display: inline-block;
-    }
-  }
-
-  .upload-button {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 0.75rem 2rem;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    z-index: 2;
-    position: relative;
-
-    &:hover {
-      background: linear-gradient(135deg, #5a67d8, #6b46c1);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .file-upload-area {
-    padding: 2rem 1rem;
-    min-height: 240px;
-
-    .upload-icon {
-      font-size: 3rem;
-    }
-
-    .upload-label {
-      font-size: 1.1rem;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .file-upload-container {
-    min-width: auto;
+    border-color: $primary-color;
+    background-color: rgba($primary-color, 0.02);
   }
   
-  .file-upload-area {
-    padding: 1.5rem 0.75rem;
-    min-height: 200px;
-
-    .upload-icon {
-      font-size: 2.5rem;
+  &.drag-over {
+    border-color: $primary-color;
+    background-color: rgba($primary-color, 0.05);
+    transform: scale(1.02);
+  }
+  
+  &.has-file {
+    border-color: $success-color;
+    background-color: rgba($success-color, 0.05);
+    
+    &:hover {
+      border-color: $success-color;
     }
+  }
+}
 
-    .upload-label {
-      font-size: 1rem;
-    }
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+  
+  .has-file & {
+    opacity: 1;
+  }
+}
 
-    .upload-button {
-      padding: 0.6rem 1.5rem;
-      font-size: 0.85rem;
-    }
+.upload-content {
+  flex: 1;
+}
+
+.upload-label {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-color;
+  margin-bottom: 0.5rem;
+}
+
+.file-info {
+  .file-name {
+    font-weight: 600;
+    color: $success-color;
+    margin-bottom: 0.25rem;
+    word-break: break-all;
+  }
+  
+  .file-size {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin-bottom: 0.5rem;
+  }
+  
+  .file-status {
+    font-size: $font-size-sm;
+    color: $success-color;
+    font-weight: 500;
+  }
+}
+
+.upload-instructions {
+  .main-text {
+    font-size: $font-size-base;
+    color: $text-color;
+    margin-bottom: 0.5rem;
+  }
+  
+  .format-text {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+.upload-button {
+  @include button-primary;
+  margin-top: 1rem;
+  
+  .has-file & {
+    display: none;
   }
 }

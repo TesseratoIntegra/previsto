@@ -288,7 +288,7 @@ const parseExcel = (data) => {
 };
 
 /**
- * Normaliza dados de estoque
+ * Normaliza dados de estoque - ATUALIZADO PARA SUPORTAR B2_DPROD
  * @param {Array} data Dados brutos de estoque
  * @returns {Object} Dados normalizados indexados por código
  */
@@ -319,17 +319,19 @@ const normalizeEstoqueData = (data) => {
       colLower.includes('codpro') || 
       colLower.includes('codigo') ||
       colLower === 'sb2' ||
-      colLower.includes('cod')
+      colLower.includes('cod') ||
+      colLower.includes('b2_cod')  // ← SUPORTE PARA SB2
     )) {
       codigoCol = col;
     }
     
-    // Detectar coluna de descrição
+    // Detectar coluna de descrição - ATUALIZADO
     if (!descricaoCol && (
       colLower.includes('descr') || 
       colLower.includes('nome') || 
       colLower.includes('produtop') ||
-      colLower.includes('descricao')
+      colLower.includes('descricao') ||
+      colLower.includes('b1_desc')  // ← DESCRIÇÃO INTEGRADA DA SB1 NA SB2
     )) {
       descricaoCol = col;
     }
@@ -338,7 +340,8 @@ const normalizeEstoqueData = (data) => {
     if (!saldoCol && (
       colLower.includes('saldo') || 
       colLower.includes('estoque') ||
-      colLower.includes('atual')
+      colLower.includes('atual') ||
+      colLower.includes('b2_qatu')  // ← SUPORTE PARA SB2
     )) {
       saldoCol = col;
     }
@@ -346,7 +349,7 @@ const normalizeEstoqueData = (data) => {
   
   console.log('Colunas detectadas:');
   console.log('- Código:', codigoCol);
-  console.log('- Descrição:', descricaoCol);
+  console.log('- Descrição:', descricaoCol, '← PODE SER B1_DESC integrada');
   console.log('- Saldo:', saldoCol);
   
   data.forEach((row, index) => {

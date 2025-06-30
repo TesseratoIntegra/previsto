@@ -1,238 +1,350 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './Dashboard.scss';
 import Header from '../Header/Header';
-import FileUpload from '../FileUpload/FileUpload';
-import MetricsPanel from '../MetricsPanel/MetricsPanel';
-import StatusSummary from '../StatusSummary/StatusSummary';
 import ProductTable from '../ProductTable/ProductTable';
 import FilterPanel from '../FilterPanel/FilterPanel';
-import { processData } from '../../services/dataProcessor';
-import { fetchEstoqueData, fetchVendasData } from '../../services/api';
+import { fetchAllDashboardData, testApiConnection } from '../../services/api';
 
 const Dashboard = () => {
-  const [estoqueFile, setEstoqueFile] = useState(null);
-  const [vendasFile, setVendasFile] = useState(null);
   const [processedData, setProcessedData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
+  
+  // ✅ PAGINAÇÃO LOCAL PARA PERFORMANCE
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 100;
+  
+  // ✅ FILTROS SIMPLIFICADOS
   const [filters, setFilters] = useState({
     search: '',
     status: '',
-    priority: '',
-    minCoverage: 0,
-    hideSemVendas: false
+    filial: '',
+    local: '',
+    hideSemMovimento: false
   });
+  
   const [filteredData, setFilteredData] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
 
-  // Função para carregar dados do backend
-  const loadDataFromBackend = async () => {
+  // ✅ MÉTRICAS SIMPLES E RÁPIDAS
+  const metrics = useMemo(() => {
+    if (!processedData || !Array.isArray(processedData)) return null;
+    
+    return {
+      totalProdutos: processedData.length,
+      totalEstoque: processedData.reduce((sum, item) => sum + (item.estoque || 0), 0),
+      totalConsumo: processedData.reduce((sum, item) => sum + (item.consumo || 0), 0),
+      totalSugestao: processedData.reduce((sum, item) => sum + (item.sugestaoAbastecimento || 0), 0)
+    };
+  }, [processedData]);
+
+  // ✅ STATUS SUMMARY SIMPLIFICADO
+  const statusSummary = useMemo(() => {
+    if (!processedData || !Array.isArray(processedData)) return null;
+    
+    const summary = processedData.reduce((acc, item) => {
+      const status = item.status || 'ADEQUADO';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    return {
+      critico: summary['CRÍTICO'] || 0,
+      baixo: summary['BAIXO'] || 0,
+      adequado: summary['ADEQUADO'] || 0,
+      excesso: summary['EXCESSO'] || 0,
+      semMovimento: summary['SEM MOVIMENTO'] || 0
+    };
+  }, [processedData]);
+
+  // Testar conexão na inicialização
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const isConnected = await testApiConnection();
+        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+      } catch (error) {
+        setConnectionStatus('disconnected');
+      }
+    };
+    
+    checkConnection();
+  }, []);
+
+  // Carregar dados do backend
+  const loadDataFromBackend = async (params = {}) => {
     try {
       setLoading(true);
       setError(null);
-      const estoqueData = await fetchEstoqueData();
-      const vendasData = await fetchVendasData();
       
-      const processed = await processData(estoqueData, vendasData);
-      setProcessedData(processed);
+      console.log('🔄 Carregando dados do backend...');
+      const response = await fetchAllDashboardData(params);
+      
+      if (response.success) {
+        setProcessedData(response.processedData);
+        console.log(`✅ ${response.processedData.length} produtos carregados`);
+      } else {
+        throw new Error('Erro ao processar dados do backend');
+      }
+      
       setLoading(false);
     } catch (err) {
+      console.error('❌ Erro ao carregar dados:', err);
       setError('Erro ao carregar dados do servidor: ' + err.message);
       setLoading(false);
     }
   };
 
-  // Função para processar arquivos carregados
-  const handleProcessFiles = async () => {
-    if (!estoqueFile || !vendasFile) {
-      setError('Por favor, selecione AMBOS os arquivos: estoque E vendas.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('Iniciando processamento dos arquivos...');
-      console.log('Arquivo de estoque :', estoqueFile.name);
-      console.log('Arquivo de vendas:', vendasFile.name);
-      
-      // Processar os arquivos carregados
-      const processed = await processData(estoqueFile, vendasFile);
-      
-      console.log('Processamento concluído. Dados processados:', processed);
-      
-      if (!processed || processed.length === 0) {
-        throw new Error('Nenhum dado foi processado. Verifique se os arquivos estão no formato correto.');
-      }
-      
-      setProcessedData(processed);
-      setLoading(false);
-    } catch (err) {
-      console.error('Erro no processamento:', err);
-      setError('Erro ao processar arquivos: ' + err.message);
-      setLoading(false);
-    }
-  };
-
-  // Aplicar filtros aos dados
+  // ✅ FILTROS OTIMIZADOS (sem debounce complexo)
   useEffect(() => {
     if (!processedData || !Array.isArray(processedData)) return;
 
-    const filtered = processedData.filter(item => {
-      // Proteção contra valores undefined
-      const codigo = item.codigo ? item.codigo.toString() : '';
-      const produto = item.produto || '';
-      const cobertura = typeof item.cobertura === 'number' ? item.cobertura : 0;
-      
-      const matchesSearch = 
-        codigo.toLowerCase().includes(filters.search.toLowerCase()) || 
-        produto.toLowerCase().includes(filters.search.toLowerCase());
-      
-      const matchesStatus = !filters.status || item.status === filters.status;
-      const matchesPriority = !filters.priority || item.prioridade === filters.priority;
-      const matchesCoverage = cobertura >= filters.minCoverage;
-      
-      // Novo filtro para excluir produtos sem vendas
-      const matchesSemVendas = !filters.hideSemVendas || item.status !== 'SEM VENDAS';
+    let filtered = processedData;
 
-      return matchesSearch && matchesStatus && matchesPriority && matchesCoverage && matchesSemVendas;
-    });
+    // Filtro de busca simples
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filtered = filtered.filter(item => {
+        const codigo = (item.codigo || '').toString().toLowerCase();
+        const produto = (item.produto || '').toString().toLowerCase();
+        return codigo.includes(searchTerm) || produto.includes(searchTerm);
+      });
+    }
+
+    // Filtros categóricos
+    if (filters.status) {
+      filtered = filtered.filter(item => item.status === filters.status);
+    }
+
+    if (filters.filial) {
+      filtered = filtered.filter(item => item.filial === filters.filial);
+    }
+
+    if (filters.local) {
+      filtered = filtered.filter(item => item.local === filters.local);
+    }
+
+    // Filtro sem movimento
+    if (filters.hideSemMovimento) {
+      filtered = filtered.filter(item => (item.consumo || 0) > 0);
+    }
 
     setFilteredData(filtered);
-
-    // Selecionar top 10 produtos para abastecimento
-    const top10 = [...filtered]
-      .sort((a, b) => (b.sugestaoAbastecimento || 0) - (a.sugestaoAbastecimento || 0))
-      .slice(0, 10);
-    
-    setTopProducts(top10);
+    setCurrentPage(1); // Reset para página 1 quando filtrar
   }, [processedData, filters]);
 
-  // Calcular métricas
-  const calculateMetrics = () => {
-    if (!processedData || !Array.isArray(processedData)) return null;
+  // ✅ DADOS PAGINADOS PARA PERFORMANCE
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredData.slice(startIndex, endIndex);
+  }, [filteredData, currentPage]);
 
-    const totalProdutos = processedData.length;
-    const totalEstoque = processedData.reduce((sum, item) => sum + (item.estoque || 0), 0);
-    const totalVendas = processedData.reduce((sum, item) => sum + (item.vendaTotal || 0), 0);
-    const totalValor = processedData.reduce((sum, item) => sum + (item.valorTotal || 0), 0);
-    const totalSugestao = processedData.reduce((sum, item) => sum + (item.sugestaoAbastecimento || 0), 0);
-
+  // ✅ INFO DE PAGINAÇÃO
+  const paginationInfo = useMemo(() => {
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
     return {
-      totalProdutos,
-      totalEstoque,
-      totalVendas,
-      totalValor,
-      totalSugestao
+      current_page: currentPage,
+      total_pages: totalPages,
+      count: filteredData.length,
+      page_size: ITEMS_PER_PAGE,
+      start_item: (currentPage - 1) * ITEMS_PER_PAGE + 1,
+      end_item: Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)
     };
+  }, [filteredData.length, currentPage]);
+
+  // Carregar dados automaticamente na inicialização
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      loadDataFromBackend();
+    }
+  }, [connectionStatus]);
+
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat('pt-BR').format(value || 0);
   };
 
-  // Calcular resumo de status
-  const calculateStatusSummary = () => {
-    if (!processedData || !Array.isArray(processedData)) return null;
-
-    const critico = processedData.filter(item => item.status === 'CRÍTICO').length;
-    const baixo = processedData.filter(item => item.status === 'BAIXO').length;
-    const adequado = processedData.filter(item => item.status === 'ADEQUADO').length;
-    const excesso = processedData.filter(item => item.status === 'EXCESSO').length;
-    const semVendas = processedData.filter(item => item.status === 'SEM VENDAS').length;
-
-    return {
-      critico,
-      baixo,
-      adequado,
-      excesso,
-      semVendas
-    };
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'connected': return '#28a745';
+      case 'disconnected': return '#dc3545';
+      default: return '#ffc107';
+    }
   };
 
-  const metrics = calculateMetrics();
-  const statusSummary = calculateStatusSummary();
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'connected': return '🟢 Conectado';
+      case 'disconnected': return '🔴 Desconectado';
+      default: return '🟡 Verificando...';
+    }
+  };
+
+  // ✅ HANDLERS DE PAGINAÇÃO
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // Scroll suave para o topo da tabela
+    document.querySelector('.product-table-container')?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+  };
+
+  const handlePageSizeChange = (newSize) => {
+    // Para futuras expansões, por enquanto fixo em 100
+    console.log('Page size change:', newSize);
+  };
 
   return (
     <div className="dashboard">
-      <Header title="Dashboard de Análise de Estoque" />
+      <Header title="Dashboard de Estoque - Protheus" />
       
+      {/* Status de conexão */}
+      <div className="connection-status" style={{ color: getStatusColor(connectionStatus) }}>
+        {getStatusText(connectionStatus)}
+        {connectionStatus === 'disconnected' && (
+          <button 
+            className="retry-button"
+            onClick={() => window.location.reload()}
+          >
+            Tentar Novamente
+          </button>
+        )}
+      </div>
+
+      {/* Interface principal */}
       {!processedData ? (
-        <div className="upload-section">
-          <h2>Upload de Arquivos</h2>
-          <div className="upload-container">
-            <FileUpload 
-              label="Arquivo de Estoque (SB2)" 
-              onFileSelect={setEstoqueFile} 
-              acceptedFormats=".xlsx,.csv"
-              icon="package"
-            />
-            <FileUpload 
-              label="Arquivo de Vendas (Rel. Analise Fat. item.)" 
-              onFileSelect={setVendasFile} 
-              acceptedFormats=".xlsx,.csv"
-              icon="chart-bar"
-            />
-          </div>
-          
-          <div className="file-status">
-            {estoqueFile && <p>✅ Estoque: {estoqueFile.name}</p>}
-            {vendasFile && <p>✅ Vendas: {vendasFile.name}</p>}
-          </div>
-          <div className='process-botton-content'>
-            <button 
-              className="process-button"
-              onClick={handleProcessFiles}
-              disabled={loading || !estoqueFile || !vendasFile}
-            >
-              {loading ? 'Processando...' : '🚀 Processar Dados e Gerar Dashboard'}
-            </button>
+        <div className="loading-section">
+          <div className="loading-card">
+            <h2>📊 Sistema de Análise de Estoque</h2>
+            <p>Conectando com dados do Protheus (SB2 + SD3)...</p>
             
             <button 
-              className="backend-button"
-              onClick={loadDataFromBackend}
-              disabled={loading}
+              className="load-button"
+              onClick={() => loadDataFromBackend()}
+              disabled={loading || connectionStatus !== 'connected'}
             >
-              {loading ? 'Carregando...' : '📊 Carregar Dados do Servidor'}
+              {loading ? (
+                <>
+                  <div className="loading-spinner"></div>
+                  Carregando dados...
+                </>
+              ) : (
+                '📊 Carregar Dados do Protheus'
+              )}
             </button>
+            
+            {error && <div className="error-message">{error}</div>}
           </div>
-          
-          {error && <div className="error-message">{error}</div>}
         </div>
       ) : (
         <div className="dashboard-content">
-          <div className="success-message">
-            ✅ Dados processados com sucesso! {processedData.length} produtos analisados.
+          {/* ✅ MÉTRICAS SIMPLIFICADAS */}
+          <div className="metrics-grid">
+            <div className="metric-card">
+              <div className="metric-icon">📦</div>
+              <div className="metric-content">
+                <div className="metric-value">{formatNumber(metrics.totalProdutos)}</div>
+                <div className="metric-label">Produtos</div>
+              </div>
+            </div>
+            
+            <div className="metric-card">
+              <div className="metric-icon">🏭</div>
+              <div className="metric-content">
+                <div className="metric-value">{formatNumber(metrics.totalEstoque)}</div>
+                <div className="metric-label">Estoque Total</div>
+              </div>
+            </div>
+            
+            <div className="metric-card">
+              <div className="metric-icon">🔄</div>
+              <div className="metric-content">
+                <div className="metric-value">{formatNumber(metrics.totalConsumo)}</div>
+                <div className="metric-label">Consumo Total</div>
+              </div>
+            </div>
+            
+            <div className="metric-card highlight">
+              <div className="metric-icon">💡</div>
+              <div className="metric-content">
+                <div className="metric-value">{formatNumber(metrics.totalSugestao)}</div>
+                <div className="metric-label">Sugestão Total</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ STATUS SUMMARY SIMPLIFICADO */}
+          <div className="status-summary">
+            <h3>📊 Resumo de Status</h3>
+            <div className="status-cards">
+              <div className="status-card critico">
+                <div className="status-header">
+                  <span className="status-icon">🚨</span>
+                  <span className="status-title">Crítico</span>
+                </div>
+                <div className="status-value">{statusSummary.critico}</div>
+              </div>
+              
+              <div className="status-card baixo">
+                <div className="status-header">
+                  <span className="status-icon">⚠️</span>
+                  <span className="status-title">Baixo</span>
+                </div>
+                <div className="status-value">{statusSummary.baixo}</div>
+              </div>
+              
+              <div className="status-card adequado">
+                <div className="status-header">
+                  <span className="status-icon">✅</span>
+                  <span className="status-title">Adequado</span>
+                </div>
+                <div className="status-value">{statusSummary.adequado}</div>
+              </div>
+              
+              <div className="status-card excesso">
+                <div className="status-header">
+                  <span className="status-icon">📈</span>
+                  <span className="status-title">Excesso</span>
+                </div>
+                <div className="status-value">{statusSummary.excesso}</div>
+              </div>
+              
+              <div className="status-card sem-movimento">
+                <div className="status-header">
+                  <span className="status-icon">💤</span>
+                  <span className="status-title">Sem Movimento</span>
+                </div>
+                <div className="status-value">{statusSummary.semMovimento}</div>
+              </div>
+            </div>
           </div>
           
-          <MetricsPanel metrics={metrics} />
-          <StatusSummary summary={statusSummary} />
-          
+          {/* ✅ FILTROS SIMPLIFICADOS */}
           <FilterPanel 
             filters={filters} 
-            setFilters={setFilters} 
+            setFilters={setFilters}
+            data={processedData}
           />
           
+          {/* ✅ TABELA ÚNICA COM PAGINAÇÃO */}
           <div className="tables-section">
-            <h2>Top 10 Produtos que Mais Precisam de Abastecimento</h2>
-            <ProductTable 
-              data={topProducts} 
-              type="top10"
-            />
-            
-            <h2>Análise Completa por Produto</h2>
-            <div className="table-info">
-              Mostrando todos os {filteredData.length} produtos filtrados de {processedData.length} produtos totais
-              {filters.hideSemVendas && (
-                <span className="filter-active"> (excluindo produtos sem vendas)</span>
-              )}
-              {(filteredData.length !== processedData.length && !filters.hideSemVendas) && (
-                <span className="filter-active"> (filtros aplicados)</span>
-              )}
-              {(filteredData.length !== processedData.length && filters.hideSemVendas) && (
-                <span className="filter-active"> (múltiplos filtros aplicados)</span>
-              )}
+            <div className="table-header">
+              <h2>📊 Análise de Produtos</h2>
+              <div className="pagination-summary">
+                Exibindo {paginationInfo.start_item}-{paginationInfo.end_item} de {paginationInfo.count} produtos
+                {filteredData.length !== processedData.length && (
+                  <span className="filter-active"> (filtrado de {processedData.length} total)</span>
+                )}
+              </div>
             </div>
+            
             <ProductTable 
-              data={filteredData} 
-              type="complete"
+              data={paginatedData}
+              pagination={paginationInfo}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              loading={loading}
             />
           </div>
         </div>

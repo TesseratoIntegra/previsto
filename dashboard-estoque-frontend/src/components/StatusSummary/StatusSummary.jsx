@@ -4,61 +4,118 @@ import './StatusSummary.scss';
 const StatusSummary = ({ summary }) => {
   if (!summary) return null;
   
-  const { critico, baixo, adequado, excesso, semVendas } = summary;
-  const total = critico + baixo + adequado + excesso + semVendas;
+  const { critico, baixo, adequado, excesso, semVendas, semMovimento, total } = summary;
   
-  const getPercentage = (value) => {
-    return total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat('pt-BR').format(value || 0);
+  };
+  
+  const calculatePercentage = (value, total) => {
+    if (!total) return 0;
+    return ((value / total) * 100).toFixed(1);
   };
   
   return (
+    
     <div className="status-summary">
-      <h3>Resumo de Status do Estoque</h3>
-      <div className="status-cards">
+      
+      
+      <div className="status-grid">
         <div className="status-card critico">
-          <div className="status-header">
-            <span className="status-icon">🚨</span>
-            <span className="status-title">Crítico</span>
+          <div className="status-icon">🔴</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(critico)}</div>
+            <div className="status-label">Crítico</div>
+            <div className="status-percentage">{calculatePercentage(critico, total)}%</div>
           </div>
-          <div className="status-value">{critico}</div>
-          <div className="status-percentage">{getPercentage(critico)}%</div>
         </div>
         
         <div className="status-card baixo">
-          <div className="status-header">
-            <span className="status-icon">⚠️</span>
-            <span className="status-title">Baixo</span>
+          <div className="status-icon">🟡</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(baixo)}</div>
+            <div className="status-label">Baixo</div>
+            <div className="status-percentage">{calculatePercentage(baixo, total)}%</div>
           </div>
-          <div className="status-value">{baixo}</div>
-          <div className="status-percentage">{getPercentage(baixo)}%</div>
         </div>
         
         <div className="status-card adequado">
-          <div className="status-header">
-            <span className="status-icon">✅</span>
-            <span className="status-title">Adequado</span>
+          <div className="status-icon">🟢</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(adequado)}</div>
+            <div className="status-label">Adequado</div>
+            <div className="status-percentage">{calculatePercentage(adequado, total)}%</div>
           </div>
-          <div className="status-value">{adequado}</div>
-          <div className="status-percentage">{getPercentage(adequado)}%</div>
         </div>
         
         <div className="status-card excesso">
-          <div className="status-header">
-            <span className="status-icon">📈</span>
-            <span className="status-title">Excesso</span>
+          <div className="status-icon">🔵</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(excesso)}</div>
+            <div className="status-label">Excesso</div>
+            <div className="status-percentage">{calculatePercentage(excesso, total)}%</div>
           </div>
-          <div className="status-value">{excesso}</div>
-          <div className="status-percentage">{getPercentage(excesso)}%</div>
         </div>
         
         <div className="status-card sem-vendas">
-          <div className="status-header">
-            <span className="status-icon">💤</span>
-            <span className="status-title">Sem Vendas</span>
+          <div className="status-icon">⚫</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(semVendas)}</div>
+            <div className="status-label">Sem Vendas</div>
+            <div className="status-percentage">{calculatePercentage(semVendas, total)}%</div>
           </div>
-          <div className="status-value">{semVendas}</div>
-          <div className="status-percentage">{getPercentage(semVendas)}%</div>
         </div>
+        
+        <div className="status-card sem-movimento">
+          <div className="status-icon">⚫</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(semMovimento)}</div>
+            <div className="status-label">Sem Movimento</div>
+            <div className="status-percentage">{calculatePercentage(semMovimento, total)}%</div>
+          </div>
+        </div>
+        
+        <div className="status-card total">
+          <div className="status-icon">📊</div>
+          <div className="status-content">
+            <div className="status-value">{formatNumber(total)}</div>
+            <div className="status-label">Total</div>
+            <div className="status-percentage">100%</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Indicadores de ação */}
+      <div className="action-indicators">
+        <div className="urgent-actions">
+          <h4>Ações Urgentes</h4>
+          <div className="action-item">
+            <span className="action-icon">🔴</span>
+            <span className="action-text">
+              {formatNumber(critico)} produtos precisam de reposição imediata
+            </span>
+          </div>
+          {baixo > 0 && (
+            <div className="action-item">
+              <span className="action-icon">🟡</span>
+              <span className="action-text">
+                {formatNumber(baixo)} produtos precisam de atenção
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {excesso > 0 && (
+          <div className="optimization-actions">
+            <h4>Oportunidades de Otimização</h4>
+            <div className="action-item">
+              <span className="action-icon">🔵</span>
+              <span className="action-text">
+                {formatNumber(excesso)} produtos com estoque em excesso
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,4 @@
-// Removendo imports que causam erro
-// @import '../../styles/variables';
-// @import '../../styles/mixins';
+// ProductTable.scss - VERSÃO OTIMIZADA PARA PERFORMANCE
 
 .product-table-container {
   background: white;
@@ -8,15 +6,50 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin: 2rem 0;
   overflow: hidden;
+  position: relative;
+}
+
+.table-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 100;
+  
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2c5aa0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  span {
+    font-weight: 500;
+    color: #2c5aa0;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .table-wrapper {
   overflow-x: auto;
+  max-height: 70vh; // ✅ Altura máxima para melhor performance
+  overflow-y: auto;
   
-  &.scrollable {
-    max-height: 600px; // Altura máxima para a tabela completa
-    overflow-y: auto;   // Scroll vertical
-    overflow-x: auto;   // Scroll horizontal se necessário
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
   }
 }
 
@@ -28,19 +61,24 @@
   th {
     background: linear-gradient(135deg, #2c5aa0, #1e3f73);
     color: white;
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.5rem; // ✅ Padding reduzido para performance
     text-align: left;
     font-weight: 600;
     position: sticky;
     top: 0;
     z-index: 10;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    font-size: 0.85rem; // ✅ Fonte menor para caber melhor
 
-    &:hover {
-      background: linear-gradient(135deg, #245291, #173357);
+    &.sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease; // ✅ Transição mais simples
+
+      &:hover {
+        background: linear-gradient(135deg, #245291, #173357);
+      }
     }
 
     &:last-child {
@@ -49,12 +87,15 @@
   }
 
   td {
-    padding: 0.75rem;
+    padding: 0.5rem; // ✅ Padding reduzido
     border-bottom: 1px solid #e9ecef;
     vertical-align: middle;
+    font-size: 0.85rem; // ✅ Fonte menor
+    
+    // ✅ ESTILOS OTIMIZADOS PARA CAMPOS ESPECÍFICOS
     
     &.produto-nome {
-      max-width: 200px;
+      max-width: 180px; // ✅ Largura reduzida
       word-wrap: break-word;
       font-weight: 500;
       
@@ -70,14 +111,43 @@
       }
     }
 
+    &.filial-codigo,
+    &.armazem-codigo {
+      font-weight: 600;
+      color: #495057;
+      text-align: center;
+      background-color: #f8f9fa;
+      min-width: 60px;
+    }
+
+    // ✅ DESTAQUES SIMPLIFICADOS
+    &.consumo-medio-destaque {
+      font-weight: 600;
+      color: #28a745;
+      text-align: right;
+    }
+
+    &.consumo-destaque {
+      font-weight: 600;
+      color: #17a2b8;
+      text-align: right;
+    }
+
     &.sugestao-destaque {
       font-weight: 600;
       color: #2c5aa0;
+      text-align: right;
+    }
+
+    // ✅ Alinhamentos para números
+    &[class*="-highlight"] {
+      text-align: right;
+      font-weight: 500;
     }
   }
 
   tr {
-    transition: background-color 0.2s ease;
+    transition: background-color 0.15s ease; // ✅ Transição mais rápida
 
     &:hover {
       background-color: rgba(44, 90, 160, 0.05);
@@ -90,140 +160,176 @@
         background-color: rgba(44, 90, 160, 0.08);
       }
     }
-  }
-}
 
-// Status badges
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  &.status-critico {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.status-baixo {
-    background-color: #fd7e14;
-    color: white;
-  }
-
-  &.status-adequado {
-    background-color: #28a745;
-    color: white;
-  }
-
-  &.status-excesso {
-    background-color: #17a2b8;
-    color: white;
-  }
-
-  &.status-sem-vendas {
-    background-color: #6c757d;
-    color: white;
-  }
-}
-
-// Priority badges
-.priority-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  &.priority-alta {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.priority-media {
-    background-color: #ffc107;
-    color: #212529;
-  }
-
-  &.priority-baixa {
-    background-color: #28a745;
-    color: white;
-  }
-}
-
-.product-table-empty {
-  text-align: center;
-  padding: 3rem;
-  color: #6c757d;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  p {
-    font-size: 1.1rem;
-    margin: 0;
-  }
-}
-
-.table-note {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  background-color: #e3f2fd;
-  border: 1px solid #bbdefb;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: #1565c0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  .note-icon {
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-}
-
-// Scrollbar customização
-.table-wrapper.scrollable {
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-    
-    &:hover {
-      background: #a8a8a8;
+    &.row-loading {
+      opacity: 0.6;
     }
   }
 }
 
-// Responsive design
+// ✅ BADGES OTIMIZADOS
+.status-badge,
+.prioridade-badge {
+  padding: 0.2rem 0.4rem; // ✅ Tamanho reduzido
+  border-radius: 8px; // ✅ Bordas menores
+  font-size: 0.7rem; // ✅ Fonte menor
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+// Status colors
+.status-critico { background: #dc3545; color: white; }
+.status-baixo { background: #fd7e14; color: white; }
+.status-adequado { background: #28a745; color: white; }
+.status-excesso { background: #17a2b8; color: white; }
+.status-sem-movimento { background: #6c757d; color: white; }
+
+// Priority colors  
+.priority-alta { background: #dc3545; color: white; }
+.priority-media { background: #ffc107; color: #212529; }
+.priority-baixa { background: #28a745; color: white; }
+
+// ✅ PAGINAÇÃO OTIMIZADA
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  
+  .pagination-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+    
+    &:hover:not(:disabled) {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    &.active {
+      background: #2c5aa0;
+      color: white;
+      border-color: #2c5aa0;
+    }
+  }
+  
+  .pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .pagination-ellipsis {
+    padding: 0.5rem;
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+}
+
+// Estados vazios otimizados
+.product-table-empty {
+  text-align: center;
+  padding: 2rem; // ✅ Padding reduzido
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .loading-state, .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2c5aa0;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    p {
+      font-size: 1rem; // ✅ Fonte menor
+      color: #6c757d;
+      margin: 0;
+    }
+    
+    small {
+      color: #adb5bd;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ✅ ESTATÍSTICAS SIMPLIFICADAS
+.table-stats {
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  
+  .stats-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: center;
+    }
+  }
+}
+
+// ✅ RESPONSIVE OTIMIZADO
 @media (max-width: 768px) {
+  .product-table-container {
+    margin: 1rem 0;
+  }
+  
+  .table-wrapper {
+    max-height: 60vh;
+  }
+  
   .product-table {
     font-size: 0.8rem;
 
     th,
     td {
-      padding: 0.5rem 0.25rem;
+      padding: 0.4rem 0.3rem;
     }
 
     .produto-nome {
       max-width: 120px;
     }
   }
-
-  .table-wrapper.scrollable {
-    max-height: 400px;
+  
+  .pagination-controls {
+    padding: 0.75rem;
+    flex-wrap: wrap;
+    
+    .pagination-btn {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.8rem;
+    }
   }
 }
 
@@ -231,7 +337,13 @@
   .product-table {
     th,
     td {
-      padding: 0.4rem 0.2rem;
+      padding: 0.3rem 0.2rem;
     }
+  }
+  
+  .status-badge,
+  .prioridade-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
   }
 }

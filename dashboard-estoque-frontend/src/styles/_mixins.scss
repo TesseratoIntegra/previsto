@@ -1,12 +1,16 @@
-// Mixins para responsividade
+// ========================================
+// MIXINS SCSS - DASHBOARD ESTOQUE
+// ========================================
+
+// Breakpoints responsivos
 @mixin mobile {
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: #{$breakpoint-md - 1px}) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (min-width: $breakpoint-md) and (max-width: $breakpoint-lg) {
+  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) {
     @content;
   }
 }
@@ -17,26 +21,39 @@
   }
 }
 
-// Mixins para botões
+@mixin mobile-only {
+  @media (max-width: #{$breakpoint-sm - 1px}) {
+    @content;
+  }
+}
+
+// Buttons
 @mixin button-base {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: $border-radius;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: $border-radius;
-  font-weight: 500;
+  gap: 0.5rem;
   cursor: pointer;
   transition: $transition;
-  border: none;
-  outline: none;
-  
-  &:focus {
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.3);
-  }
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: 1;
+  min-height: 44px; // Acessibilidade
   
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
   }
 }
 
@@ -44,92 +61,235 @@
   @include button-base;
   background-color: $primary-color;
   color: white;
+  border: 2px solid $primary-color;
   
-  &:hover {
-    background-color: darken($primary-color, 10%);
+  &:hover:not(:disabled) {
+    background-color: $secondary-color;
+    border-color: $secondary-color;
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background-color: darken($secondary-color, 5%);
   }
 }
 
 @mixin button-secondary {
   @include button-base;
-  background-color: $secondary-color;
-  color: white;
-  
-  &:hover {
-    background-color: darken($secondary-color, 10%);
-  }
-}
-
-@mixin button-outline {
-  @include button-base;
   background-color: transparent;
-  border: 1px solid $border-color;
-  color: $text-color;
+  color: $primary-color;
+  border: 2px solid $primary-color;
   
-  &:hover {
-    background-color: $bg-gray;
+  &:hover:not(:disabled) {
+    background-color: $primary-color;
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background-color: $secondary-color;
   }
 }
 
-// Mixins para cards
+@mixin button-danger {
+  @include button-base;
+  background-color: $error-color;
+  color: white;
+  border: 2px solid $error-color;
+  
+  &:hover:not(:disabled) {
+    background-color: darken($error-color, 10%);
+    border-color: darken($error-color, 10%);
+    transform: translateY(-1px);
+  }
+}
+
+// Cards
 @mixin card {
-  background-color: $bg-light;
+  background: $bg-light;
   border-radius: $border-radius;
   box-shadow: $box-shadow;
-  padding: 1rem;
+  padding: 1.5rem;
+  border: 1px solid $border-light;
+  
+  @include mobile {
+    padding: 1rem;
+    border-radius: $border-radius-sm;
+  }
 }
 
-// Mixins para inputs
-@mixin input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid $border-color;
-  border-radius: $border-radius;
-  font-size: $font-size-base;
+@mixin card-hover {
+  @include card;
   transition: $transition;
   
-  &:focus {
-    border-color: $border-focus;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
-    outline: none;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow-lg;
   }
+}
+
+// Status badges
+@mixin status-badge($bg-color, $text-color: white) {
+  padding: 0.25rem 0.75rem;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: $bg-color;
+  color: $text-color;
+  display: inline-block;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  
+  &:hover {
+    border-color: rgba($bg-color, 0.8);
+  }
+}
+
+// Flexbox helpers
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-start {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+@mixin flex-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+// Input styles
+@mixin input-base {
+  padding: 0.75rem;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  font-family: $font-family;
+  transition: $transition;
+  background-color: $bg-light;
+  color: $text-color;
+  width: 100%;
   
   &::placeholder {
     color: $text-disabled;
   }
-}
-
-// Mixins para tabelas
-@mixin table {
-  width: 100%;
-  border-collapse: collapse;
   
-  th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid $border-color;
+  &:focus {
+    outline: none;
+    border-color: $border-focus;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
   }
   
-  th {
-    background-color: $bg-gray;
-    font-weight: 600;
-    color: $text-secondary;
+  &:disabled {
+    background-color: $bg-secondary;
+    color: $text-disabled;
+    cursor: not-allowed;
   }
   
-  tr:hover {
-    background-color: rgba($bg-gray, 0.5);
+  &:invalid {
+    border-color: $error-color;
   }
 }
 
-// Mixins para status
-@mixin status-badge($color) {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: $font-size-sm;
-  font-weight: 500;
-  background-color: rgba($color, 0.1);
-  color: $color;
-  border: 1px solid rgba($color, 0.2);
+// Utilities
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@mixin clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+// Loading spinner
+@mixin spinner($size: 1rem, $color: $primary-color) {
+  width: $size;
+  height: $size;
+  border: 2px solid rgba($color, 0.2);
+  border-top: 2px solid $color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Gradients
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+}
+
+@mixin gradient-success {
+  background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+}
+
+@mixin gradient-danger {
+  background: linear-gradient(135deg, $error-color, darken($error-color, 10%));
+}
+
+// Scrollbar customization
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $bg-secondary;
+    border-radius: $border-radius-sm;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: $border-radius-sm;
+    
+    &:hover {
+      background: darken($border-color, 10%);
+    }
+  }
+}

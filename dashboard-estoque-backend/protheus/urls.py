@@ -1,10 +1,12 @@
 from django.urls import path
+from protheus.views import StockView, StockMovementView, SalesView, LocationsView
 
-from protheus.views import StockView, StockMovementView, ProductView
 
+app_name = "protheus"
 
 urlpatterns = [
-    path('stocks/', StockView.as_view(), name='stocks_summary'),
-    path('stock-moviments/', StockMovementView.as_view(), name='stocks_moviment_summary'),
-    path('products/', ProductView.as_view(), name='sales_summary'),
+    path("stocks/", StockView.as_view(), name="stocks-summary"),
+    path("stocks_moviment/", StockMovementView.as_view(), name="stocks-moviment-summary"),
+    path("sales/", SalesView.as_view(), name="sales-summary"),
+    path("locations/", LocationsView.as_view(), name="locations-list"),  # Novo endpoint
 ]
