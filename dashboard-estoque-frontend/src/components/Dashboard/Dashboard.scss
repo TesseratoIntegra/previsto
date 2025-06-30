@@ -1,364 +1,469 @@
-// Dashboard.scss - VERSÃO ATUALIZADA CONFORME NOVA ESPECIFICAÇÃO
+@import '../../styles/variables';
+@import '../../styles/mixins';
 
-.dashboard {
+.dashboard.optimized {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem 1rem;
+  background: $bg-gray;
+  padding: 1rem;
   
-  @media (min-width: 768px) {
+  @include desktop {
     padding: 2rem;
   }
 }
 
-// ✅ STATUS DE CONEXÃO ATUALIZADO
-.connection-status {
+// Loading states
+.dashboard-loading,
+.dashboard-welcome {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
+  align-items: center;
+  min-height: 70vh;
+  padding: 2rem;
+}
+
+.loading-card,
+.welcome-card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: 600;
-  font-size: 1.1rem;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-lg;
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  border: 1px solid $border-light;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid $border-light;
+  border-top: 4px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+// Welcome section
+.welcome-header {
+  margin-bottom: 2rem;
   
-  .retry-button {
-    padding: 0.5rem 1rem;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
+  .welcome-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    color: $primary-color;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+  }
+}
+
+// Connection status
+.connection-status {
+  margin: 2rem 0;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: $border-radius;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+  
+  &.connected {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+    border: 1px solid rgba($success-color, 0.3);
     
-    &:hover {
-      background: #c82333;
+    .status-dot {
+      background: $success-color;
+    }
+  }
+  
+  &.disconnected {
+    background: rgba($warning-color, 0.1);
+    color: $warning-color;
+    border: 1px solid rgba($warning-color, 0.3);
+    
+    .status-dot {
+      background: $warning-color;
+    }
+  }
+  
+  &.error {
+    background: rgba($error-color, 0.1);
+    color: $error-color;
+    border: 1px solid rgba($error-color, 0.3);
+    
+    .status-dot {
+      background: $error-color;
     }
   }
 }
 
-// Seção de carregamento
-.loading-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  
-  .loading-card {
-    background: white;
-    padding: 3rem 2rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 500px;
-    width: 100%;
-    
-    h2 {
-      color: #2c5aa0;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-    }
-    
-    p {
-      color: #6c757d;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-    }
-  }
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
 }
 
-.load-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #2c5aa0, #1e3f73);
+// Load button
+.load-data-btn {
+  @include button-base;
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
   color: white;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-height: 56px;
+  padding: 1rem 2rem;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin: 1rem 0;
+  min-width: 250px;
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #245291, #173357);
+    background: linear-gradient(135deg, darken($primary-color, 5%), darken($secondary-color, 5%));
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
   }
   
   &:disabled {
-    opacity: 0.7;
+    background: $disabled-color;
     cursor: not-allowed;
     transform: none;
   }
   
-  .loading-spinner {
+  .button-icon {
+    margin-right: 0.5rem;
+  }
+  
+  .button-spinner {
     width: 20px;
     height: 20px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top: 2px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+    display: inline-block;
   }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+// Error message
 .error-message {
-  margin-top: 1rem;
+  background: rgba($error-color, 0.1);
+  color: $error-color;
   padding: 1rem;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 8px;
-  color: #721c24;
-  font-weight: 500;
+  border-radius: $border-radius;
+  border: 1px solid rgba($error-color, 0.3);
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  .error-icon {
+    font-size: $font-size-lg;
+  }
 }
 
-// ✅ MÉTRICAS ATUALIZADAS
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+// Dashboard content
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Metrics section
+.metrics-section {
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
   }
 }
 
 .metric-card {
   background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: all 0.3s ease;
-  border-left: 4px solid #e9ecef;
+  border: 1px solid $border-light;
+  transition: $transition;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: $box-shadow-lg;
   }
   
   &.highlight {
-    border-left-color: #2c5aa0;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-left: 4px solid $accent-color;
+    background: linear-gradient(135deg, rgba($accent-color, 0.05), white);
     
     .metric-icon {
-      background: linear-gradient(135deg, #2c5aa0, #1e3f73);
-      color: white;
+      background: linear-gradient(135deg, $accent-color, lighten($accent-color, 10%));
     }
-  }
-  
-  .metric-icon {
-    font-size: 2rem;
-    padding: 0.75rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 60px;
-    height: 60px;
-  }
-  
-  .metric-content {
-    flex: 1;
     
     .metric-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #2c5aa0;
-      margin-bottom: 0.25rem;
-      line-height: 1;
-    }
-    
-    .metric-label {
-      font-size: 0.9rem;
-      color: #6c757d;
-      font-weight: 500;
+      color: $accent-color;
     }
   }
 }
 
-// ✅ STATUS SUMMARY ATUALIZADO
-.status-summary {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+.metric-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+  flex-shrink: 0;
   
-  h3 {
-    color: #2c5aa0;
-    margin-bottom: 1.5rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+  &.products {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+  }
+  
+  &.stock {
+    background: linear-gradient(135deg, $info-color, darken($info-color, 10%));
+  }
+  
+  &.consumption {
+    background: linear-gradient(135deg, $warning-color, darken($warning-color, 10%));
+  }
+  
+  &.suggestion {
+    background: linear-gradient(135deg, $accent-color, lighten($accent-color, 10%));
   }
 }
 
-.status-cards {
+.metric-content {
+  flex: 1;
+  text-align: right;
+  
+  @include mobile {
+    text-align: left;
+  }
+}
+
+.metric-value {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  
+  @include mobile {
+    font-size: $font-size-xl;
+  }
+}
+
+.metric-label {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Status section
+.status-section {
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  padding: 1.5rem;
+  border: 1px solid $border-light;
+}
+
+.section-title {
+  color: $primary-color;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 }
 
 .status-card {
-  padding: 1.25rem 1rem;
-  border-radius: 12px;
-  text-align: center;
-  color: white;
-  transition: all 0.3s ease;
+  border-radius: $border-radius;
+  padding: 1rem;
+  border: 1px solid transparent;
+  transition: $transition;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
   
   &.critico {
-    background: linear-gradient(135deg, #dc3545, #c82333);
+    background: linear-gradient(135deg, rgba($status-critico, 0.1), rgba($status-critico, 0.05));
+    border-color: rgba($status-critico, 0.2);
+    
+    .status-value {
+      color: $status-critico;
+    }
   }
   
   &.baixo {
-    background: linear-gradient(135deg, #fd7e14, #e8690b);
+    background: linear-gradient(135deg, rgba($status-baixo, 0.1), rgba($status-baixo, 0.05));
+    border-color: rgba($status-baixo, 0.2);
+    
+    .status-value {
+      color: $status-baixo;
+    }
   }
   
   &.adequado {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
+    background: linear-gradient(135deg, rgba($status-adequado, 0.1), rgba($status-adequado, 0.05));
+    border-color: rgba($status-adequado, 0.2);
+    
+    .status-value {
+      color: $status-adequado;
+    }
   }
   
   &.excesso {
-    background: linear-gradient(135deg, #17a2b8, #138496);
+    background: linear-gradient(135deg, rgba($status-excesso, 0.1), rgba($status-excesso, 0.05));
+    border-color: rgba($status-excesso, 0.2);
+    
+    .status-value {
+      color: $status-excesso;
+    }
   }
   
   &.sem-movimento {
-    background: linear-gradient(135deg, #6c757d, #545b62);
-  }
-  
-  .status-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, rgba($status-sem-vendas, 0.1), rgba($status-sem-vendas, 0.05));
+    border-color: rgba($status-sem-vendas, 0.2);
     
-    .status-icon {
-      font-size: 1.25rem;
+    .status-value {
+      color: $status-sem-vendas;
     }
-    
-    .status-title {
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  }
-  
-  .status-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    line-height: 1;
-  }
-  
-  .status-percentage {
-    font-size: 0.85rem;
-    opacity: 0.9;
-    font-weight: 500;
   }
 }
 
-// Seção de tabelas
-.tables-section {
-  margin-top: 2rem;
-  
-  h2 {
-    color: #2c5aa0;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+.status-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-value {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.status-label {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+// Table section
+.table-section {
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  padding: 1.5rem;
+  border: 1px solid $border-light;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .table-info {
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  background-color: #f8f9fa;
-  border-left: 4px solid #2c5aa0;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  color: #495057;
-  
-  .filter-active {
-    color: #2c5aa0;
-    font-weight: 600;
-  }
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
 }
 
-// Responsive design
-@media (max-width: 768px) {
-  .dashboard {
-    padding: 1rem 0.5rem;
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Responsive adjustments
+@include mobile {
+  .dashboard.optimized {
+    padding: 0.5rem;
   }
   
-  .loading-card {
+  .loading-card,
+  .welcome-card {
     padding: 2rem 1rem;
-    
-    h2 {
-      font-size: 1.25rem;
-    }
-    
-    p {
-      font-size: 1rem;
-    }
-  }
-  
-  .load-button {
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
+    margin: 0.5rem;
   }
   
   .metric-card {
     padding: 1rem;
     
     .metric-icon {
-      font-size: 1.5rem;
-      min-width: 50px;
+      width: 50px;
       height: 50px;
-    }
-    
-    .metric-value {
       font-size: 1.5rem;
     }
   }
   
   .status-card {
-    padding: 1rem 0.75rem;
+    padding: 0.75rem;
+    
+    .status-icon {
+      font-size: 1.25rem;
+    }
     
     .status-value {
-      font-size: 1.5rem;
+      font-size: $font-size-lg;
     }
-  }
-  
-  .tables-section h2 {
-    font-size: 1.25rem;
   }
 }

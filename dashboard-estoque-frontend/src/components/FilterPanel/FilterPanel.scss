@@ -1,146 +1,319 @@
 @import '../../styles/variables';
 @import '../../styles/mixins';
 
-.filter-panel {
-  @include card;
-  margin: 2rem 0;
+.filter-panel.optimized {
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  margin: 1.5rem 0;
+  border: 1px solid $border-light;
+  overflow: hidden;
+}
+
+.filter-header {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   
   h3 {
-    color: $text-color;
-    margin-bottom: 1.5rem;
+    margin: 0;
     font-size: $font-size-lg;
-    @include flex-center;
-    gap: 0.5rem;
-    
-    .filter-icon {
-      font-size: 1.2rem;
-    }
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.active-filters-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: $border-radius;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.filter-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $font-size-sm;
+  
+  .results-count {
+    font-weight: $font-weight-semibold;
+  }
+  
+  .total-count {
+    opacity: 0.8;
+    font-style: italic;
   }
 }
 
 .filter-controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  align-items: end;
-  
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  
-  label {
-    font-weight: 500;
-    color: $text-color;
-    font-size: $font-size-sm;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  input, select {
-    @include input-base;
-    
-    &:focus {
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-    }
-  }
-  
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 6px;
-    background: $border-color;
-    border-radius: 3px;
-    outline: none;
-    padding: 0;
-    border: none;
-    
-    &::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      background: $primary-color;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      
-      &:hover {
-        background: $secondary-color;
-      }
-    }
-    
-    &::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      background: $primary-color;
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      
-      &:hover {
-        background: $secondary-color;
-      }
-    }
-  }
 }
 
-.range-display {
+.filter-label {
+  font-weight: $font-weight-medium;
+  color: $text-color;
   font-size: $font-size-sm;
-  color: $text-secondary;
-  font-weight: 500;
-  margin-top: 0.25rem;
+  margin: 0;
 }
 
-.checkbox-group {
+// Input de busca com loading
+.search-group {
+  margin-bottom: 0.5rem;
+}
+
+.search-input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding-top: 1.5rem;
+}
+
+.search-input {
+  @include input-base;
+  padding-right: 3rem;
+  font-size: $font-size-base;
   
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: $primary-color;
-    cursor: pointer;
-  }
-  
-  label {
-    cursor: pointer;
-    font-size: $font-size-base;
-    text-transform: none;
-    letter-spacing: normal;
-    margin: 0;
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
   }
 }
 
-.filter-actions {
-  grid-column: 1 / -1;
-  @include flex-center;
+.search-loading {
+  position: absolute;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.search-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid $border-light;
+  border-top: 2px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+// Grid de filtros
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid $border-color;
   
   @include mobile {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
 
-.clear-filters-button {
-  @include button-secondary;
+.filter-select {
+  @include input-base;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+// Checkbox customizado
+.checkbox-group {
+  margin: 0.5rem 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: $font-weight-medium;
+  color: $text-color;
   font-size: $font-size-sm;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
+  border-radius: $border-radius;
+  transition: $transition;
+  
+  &:hover {
+    background: rgba($primary-color, 0.05);
+  }
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-sm;
+  position: relative;
+  transition: $transition;
+  flex-shrink: 0;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: $primary-color;
+  border-color: $primary-color;
+  
+  &::after {
+    opacity: 1;
+  }
+}
+
+// Ações
+.filter-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-light;
+}
+
+.clear-filters-btn {
+  @include button-base;
+  background: linear-gradient(135deg, $error-color, darken($error-color, 10%));
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   
   &:hover:not(:disabled) {
-    background-color: rgba($error-color, 0.1);
-    border-color: $error-color;
-    color: $error-color;
+    background: linear-gradient(135deg, darken($error-color, 5%), darken($error-color, 15%));
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background: $disabled-color;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Estatísticas rápidas
+.filter-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  
+  @include mobile {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: $font-size-xs;
+}
+
+.stat-label {
+  color: $text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.stat-value {
+  font-weight: $font-weight-bold;
+  padding: 0.15rem 0.4rem;
+  border-radius: $border-radius-sm;
+  min-width: 24px;
+  text-align: center;
+  
+  &.stat-critico {
+    background: rgba($status-critico, 0.1);
+    color: $status-critico;
+  }
+  
+  &.stat-baixo {
+    background: rgba($status-baixo, 0.1);
+    color: $status-baixo;
+  }
+  
+  &.stat-adequado {
+    background: rgba($status-adequado, 0.1);
+    color: $status-adequado;
+  }
+}
+
+// Animações
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsividade
+@include mobile {
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .filter-summary {
+    font-size: $font-size-xs;
+  }
+  
+  .filter-controls {
+    padding: 1rem;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .clear-filters-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

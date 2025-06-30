@@ -1,14 +1,16 @@
 import React from 'react';
-import './App.scss';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import Dashboard from './components/Dashboard/Dashboard';
+import './App.scss';
 
 function App() {
   return (
-    <div className="app">
-      <Dashboard />
-    </div>
+    <ErrorBoundary>
+      <div className="app optimized">
+        <Dashboard />
+      </div>
+    </ErrorBoundary>
   );
 }
 
 export default App;
-
