@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local apps
-    'uploads',
     'protheus',
 ]
 

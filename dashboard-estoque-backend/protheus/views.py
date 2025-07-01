@@ -7,7 +7,8 @@ from protheus.services import ProtheusService
 from protheus.serializers import (
     StockSummarySerializer,
     StockMovementSerializer,
-    SalesSumarySerializer
+    SalesSumarySerializer,
+    DeliverySummarySerializer,
 )
 
 
@@ -259,4 +260,184 @@ class LocationsView(APIView):
                 'success': False,
                 'locations': [],
                 'count': 0
+            }, status=500)
+        
+        
+class DeliveryView(APIView):
+    """
+    API para buscar dados de liberações/entregas (SC9)
+    """
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            filial_filter = request.query_params.get('filial', '')
+            local_filter = request.query_params.get('local', '')
+            days = int(request.query_params.get('days', 30))
+            
+            print(f"🚚 DeliveryView - Filtros: filial={filial_filter}, local={local_filter}, days={days}")
+            
+            # Buscar dados de liberações/entregas
+            raw_data = ProtheusService.get_deliveries_summary(
+                filial=filial_filter if filial_filter else None,
+                local=local_filter if local_filter else None,
+                days=days
+            )
+
+            data = []
+            for item in raw_data:
+                try:
+                    formatted_item = {
+                        "pedido": str(item.get("pedido", "")),
+                        "item": str(item.get("item", "")),
+                        "sequencia": str(item.get("sequencia", "")),
+                        "produto": str(item.get("produto", "")),
+                        "descricao": str(item.get("descricao", "")),
+                        "quantidade_liberada": float(item.get("quantidade_liberada", 0)),
+                        "preco_venda": float(item.get("preco_venda", 0)),
+                        "valor_total": float(item.get("valor_total", 0)),
+                        "data_liberacao": item.get("data_liberacao"),
+                        "local": str(item.get("local", "")),
+                        "lote": str(item.get("lote", "")),
+                        "data_validade": item.get("data_validade"),
+                        "ordem_separacao": str(item.get("ordem_separacao", "")),
+                        "nota_fiscal": str(item.get("nota_fiscal", "")),
+                        "serie_nf": str(item.get("serie_nf", "")),
+                        "status_liberacao": str(item.get("status_liberacao", "")),
+                        "bloqueio_estoque": str(item.get("bloqueio_estoque", "")),
+                        "bloqueio_credito": str(item.get("bloqueio_credito", "")),
+                        "filial": str(item.get("filial", "")),
+                    }
+                    data.append(formatted_item)
+                    
+                except (ValueError, TypeError) as e:
+                    print(f"❌ Erro ao processar item de liberação: {e}")
+                    continue
+
+            print(f"✅ DeliveryView - {len(data)} itens processados")
+
+            # Aplicar paginação
+            paginator = StandardPagination()
+            paginated_data = paginator.paginate_queryset(data, request)
+            serializer = DeliverySummarySerializer(paginated_data, many=True)
+
+            return paginator.get_paginated_response(serializer.data)
+            
+        except Exception as e:
+            print(f"❌ Erro na DeliveryView: {e}")
+            return Response({
+                'error': f'Erro ao buscar dados de liberação: {str(e)}',
+                'count': 0,
+                'next': None,
+                'previous': None,
+                'total_pages': 0,
+                'current_page': 1,
+                'page_size': 50,
+                'results': []
+            }, status=500)
+
+
+class DeliveryStatusView(APIView):
+    """
+    API para resumo de status das liberações
+    """
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            filial_filter = request.query_params.get('filial', '')
+            days = int(request.query_params.get('days', 7))
+            
+            print(f"📊 DeliveryStatusView - Filtros: filial={filial_filter}, days={days}")
+            
+            # Buscar resumo de status
+            raw_data = ProtheusService.get_delivery_status_summary(
+                filial=filial_filter if filial_filter else None,
+                days=days
+            )
+
+            data = []
+            for item in raw_data:
+                try:
+                    formatted_item = {
+                        "status": str(item.get("status", "")),
+                        "quantidade": int(item.get("quantidade", 0)),
+                        "valor_total": float(item.get("valor_total", 0)),
+                    }
+                    data.append(formatted_item)
+                    
+                except (ValueError, TypeError) as e:
+                    print(f"❌ Erro ao processar status de liberação: {e}")
+                    continue
+
+            print(f"✅ DeliveryStatusView - {len(data)} status processados")
+
+            return Response({
+                'success': True,
+                'count': len(data),
+                'data': data
+            })
+            
+        except Exception as e:
+            print(f"❌ Erro na DeliveryStatusView: {e}")
+            return Response({
+                'error': f'Erro ao buscar status de liberação: {str(e)}',
+                'data': []
+            }, status=500)
+
+
+class PendingDeliveriesView(APIView):
+    """
+    API para liberações pendentes de faturamento
+    """
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            filial_filter = request.query_params.get('filial', '')
+            local_filter = request.query_params.get('local', '')
+            
+            print(f"⏳ PendingDeliveriesView - Filtros: filial={filial_filter}, local={local_filter}")
+            
+            # Buscar liberações pendentes
+            raw_data = ProtheusService.get_pending_deliveries(
+                filial=filial_filter if filial_filter else None,
+                local=local_filter if local_filter else None
+            )
+
+            data = []
+            for item in raw_data:
+                try:
+                    formatted_item = {
+                        "filial": str(item.get("filial", "")),
+                        "pedido": str(item.get("pedido", "")),
+                        "produto": str(item.get("produto", "")),
+                        "descricao": str(item.get("descricao", "")),
+                        "local": str(item.get("local", "")),
+                        "total_liberado": float(item.get("total_liberado", 0)),
+                        "valor_total": float(item.get("valor_total", 0)),
+                        "primeira_liberacao": item.get("primeira_liberacao"),
+                        "ultima_liberacao": item.get("ultima_liberacao"),
+                        "total_itens": int(item.get("total_itens", 0)),
+                    }
+                    data.append(formatted_item)
+                    
+                except (ValueError, TypeError) as e:
+                    print(f"❌ Erro ao processar liberação pendente: {e}")
+                    continue
+
+            print(f"✅ PendingDeliveriesView - {len(data)} pendências processadas")
+
+            # Aplicar paginação
+            paginator = StandardPagination()
+            paginated_data = paginator.paginate_queryset(data, request)
+
+            return paginator.get_paginated_response(paginated_data)
+            
+        except Exception as e:
+            print(f"❌ Erro na PendingDeliveriesView: {e}")
+            return Response({
+                'error': f'Erro ao buscar liberações pendentes: {str(e)}',
+                'count': 0,
+                'results': []
             }, status=500)

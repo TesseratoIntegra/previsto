@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from protheus.models import ProtheusSD3, ProtheusSB1, ProtheusSB2
+from protheus.models import ProtheusSD3, ProtheusSB1, ProtheusSB2, ProtheusSC9
 
 
 class StockMovementFilter(filters.FilterSet):
@@ -83,3 +83,44 @@ class StockFilter(filters.FilterSet):
     class Meta:
         model = ProtheusSB2
         fields = ['B2_FILIAL', 'B2_COD', 'B2_LOCAL']
+
+class DeliveryFilter(filters.FilterSet):
+    """
+    Filtros personalizados para os campos da tabela ProtheusSC9 (liberações/entregas).
+
+    Todos os filtros aplicam .strip() e lookup com 'startswith', garantindo compatibilidade
+    com colunas do tipo CHAR no Oracle, que possuem preenchimento por espaços à direita.
+    """
+
+    C9_PEDIDO = filters.CharFilter(method='filter_pedido')
+    C9_PRODUTO = filters.CharFilter(method='filter_produto')
+    C9_LOCAL = filters.CharFilter(method='filter_local')
+    C9_FILIAL = filters.CharFilter(method='filter_filial')
+    C9_NFISCAL = filters.CharFilter(method='filter_nfiscal')
+    C9_BLEST = filters.CharFilter(method='filter_blest')
+    C9_BLCRED = filters.CharFilter(method='filter_blcred')
+
+    def filter_pedido(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_produto(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_local(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_filial(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_nfiscal(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_blest(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    def filter_blcred(self, queryset, name, value):
+        return queryset.filter(**{f"{name}__startswith": value.strip()})
+
+    class Meta:
+        model = ProtheusSC9
+        fields = ['C9_PEDIDO', 'C9_PRODUTO', 'C9_LOCAL', 'C9_FILIAL', 'C9_NFISCAL', 'C9_BLEST', 'C9_BLCRED']

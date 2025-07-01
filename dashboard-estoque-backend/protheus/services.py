@@ -1,6 +1,6 @@
 # protheus/services.py - INCLUINDO MOVIMENTAÇÕES PARA MÉDIA MENSAL
 
-from django.db import connection
+from django.db import connections
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class ProtheusService:
         """
         Consulta estoque com informações completas de filial e armazém
         """
-        with connection.cursor() as cursor:
+        with connections['protheus'].cursor() as cursor:
             sql = """
                 SELECT 
                     SB1.B1_COD as code,
@@ -59,7 +59,7 @@ class ProtheusService:
         """
         Busca vendas (SC5/SC6) + movimentações de saída (SD3) para cálculo da média mensal
         """
-        with connection.cursor() as cursor:
+        with connections['protheus'].cursor() as cursor:
             # PARTE 1: Vendas dos pedidos (SC5/SC6)
             sql_vendas = """
                 SELECT 
@@ -169,7 +169,7 @@ class ProtheusService:
         """
         Movimentações de estoque para visualização (mantém original)
         """
-        with connection.cursor() as cursor:
+        with connections['protheus'].cursor() as cursor:
             offset = (page - 1) * page_size
             
             sql = """
@@ -202,57 +202,191 @@ class ProtheusService:
             sql += f") WHERE rn > {offset} AND rn <= {offset + page_size}"
             
             cursor.execute(sql, params)
-            columns = [col[0].lower() for col in cursor.description if col[0].lower() != 'rn']
+            columns = [col[0].lower() for col in cursor.description]
             
             results = []
             for row in cursor.fetchall():
-                row_data = row[:-1]
-                results.append(dict(zip(columns, row_data)))
+                results.append(dict(zip(columns, row)))
             
             return results
-    
+
     @staticmethod
-    def get_filiais_disponiveis():
+    def get_deliveries_summary(filial=None, local=None, days=30):
         """
-        Busca filiais disponíveis
+        Busca liberações/entregas (SC9) com informações completas
         """
-        with connection.cursor() as cursor:
+        with connections['protheus'].cursor() as cursor:
             sql = """
-                SELECT DISTINCT B1_FILIAL as filial
-                FROM SB1010
-                WHERE D_E_L_E_T_ = ' '
-                AND B1_FILIAL IS NOT NULL
-                AND TRIM(B1_FILIAL) != ''
-                ORDER BY B1_FILIAL
-            """
-            
-            cursor.execute(sql)
-            return [row[0] for row in cursor.fetchall()]
-    
-    @staticmethod
-    def get_armazens_disponiveis(filial=None):
-        """
-        Busca armazéns disponíveis da SD3 (movimentações) - locais com atividade
-        """
-        with connection.cursor() as cursor:
-            sql = """
-                SELECT DISTINCT D3_LOCAL as local
-                FROM SD3010
-                WHERE D_E_L_E_T_ = ' '
-                AND D3_LOCAL IS NOT NULL
-                AND TRIM(D3_LOCAL) != ''
-                AND D3_EMISSAO >= ADD_MONTHS(SYSDATE, -12)  -- Últimos 12 meses
+                SELECT 
+                    SC9.C9_FILIAL as filial,
+                    SC9.C9_PEDIDO as pedido,
+                    SC9.C9_ITEM as item,
+                    SC9.C9_SEQUEN as sequencia,
+                    SC9.C9_PRODUTO as produto,
+                    SB1.B1_DESC as descricao,
+                    SC9.C9_QTDLIB as quantidade_liberada,
+                    SC9.C9_PRCVEN as preco_venda,
+                    (SC9.C9_QTDLIB * SC9.C9_PRCVEN) as valor_total,
+                    SC9.C9_DATALIB as data_liberacao,
+                    SC9.C9_LOCAL as local,
+                    SC9.C9_LOTECTL as lote,
+                    SC9.C9_DTVALID as data_validade,
+                    SC9.C9_ORDSEP as ordem_separacao,
+                    SC9.C9_NFISCAL as nota_fiscal,
+                    SC9.C9_SERIENF as serie_nf,
+                    SC9.C9_BLEST as bloqueio_estoque,
+                    SC9.C9_BLCRED as bloqueio_credito,
+                    SC9.C9_OK as liberacao_ok,
+                    
+                    -- STATUS CALCULADO
+                    CASE 
+                        WHEN SC9.C9_NFISCAL IS NOT NULL AND SC9.C9_NFISCAL != ' ' THEN 'FATURADO'
+                        WHEN SC9.C9_BLEST IS NOT NULL AND SC9.C9_BLEST != '  ' THEN 'BLOQ_ESTOQUE'
+                        WHEN SC9.C9_BLCRED IS NOT NULL AND SC9.C9_BLCRED != '  ' THEN 'BLOQ_CREDITO'
+                        WHEN SC9.C9_OK = 'S' THEN 'LIBERADO'
+                        ELSE 'PENDENTE'
+                    END as status_liberacao
+                    
+                FROM SC9010 SC9
+                LEFT JOIN SB1010 SB1 ON (
+                    SC9.C9_FILIAL = SB1.B1_FILIAL 
+                    AND SC9.C9_PRODUTO = SB1.B1_COD
+                    AND SB1.D_E_L_E_T_ = ' '
+                )
+                WHERE SC9.D_E_L_E_T_ = ' '
+                AND SC9.C9_QTDLIB > 0
             """
             
             params = []
+            
+            # Filtro por período (últimos N dias)
+            if days:
+                sql += " AND SC9.C9_DATALIB >= SYSDATE - %s"
+                params.append(days)
+            
             if filial:
-                sql += " AND D3_FILIAL = %s"
+                sql += " AND SC9.C9_FILIAL = %s"
                 params.append(filial)
             
-            sql += " ORDER BY D3_LOCAL"
+            if local:
+                sql += " AND SC9.C9_LOCAL = %s"
+                params.append(local)
+            
+            sql += " ORDER BY SC9.C9_DATALIB DESC, SC9.C9_PEDIDO, SC9.C9_ITEM"
+            
+            logger.info(f"Query liberações SC9: {sql}")
+            cursor.execute(sql, params)
+            columns = [col[0].lower() for col in cursor.description]
+            
+            results = []
+            for row in cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            
+            logger.info(f"Liberações SC9: {len(results)} registros")
+            return results
+
+    @staticmethod
+    def get_delivery_status_summary(filial=None, days=7):
+        """
+        Resumo de status das liberações por período
+        """
+        with connections['protheus'].cursor() as cursor:
+            sql = """
+                SELECT 
+                    CASE 
+                        WHEN SC9.C9_NFISCAL IS NOT NULL AND SC9.C9_NFISCAL != ' ' THEN 'FATURADO'
+                        WHEN SC9.C9_BLEST IS NOT NULL AND SC9.C9_BLEST != '  ' THEN 'BLOQ_ESTOQUE'
+                        WHEN SC9.C9_BLCRED IS NOT NULL AND SC9.C9_BLCRED != '  ' THEN 'BLOQ_CREDITO'
+                        WHEN SC9.C9_OK = 'S' THEN 'LIBERADO'
+                        ELSE 'PENDENTE'
+                    END as status,
+                    COUNT(*) as quantidade,
+                    SUM(SC9.C9_QTDLIB * SC9.C9_PRCVEN) as valor_total
+                FROM SC9010 SC9
+                WHERE SC9.D_E_L_E_T_ = ' '
+                AND SC9.C9_QTDLIB > 0
+                AND SC9.C9_DATALIB >= SYSDATE - %s
+            """
+            
+            params = [days]
+            
+            if filial:
+                sql += " AND SC9.C9_FILIAL = %s"
+                params.append(filial)
+            
+            sql += """
+                GROUP BY 
+                    CASE 
+                        WHEN SC9.C9_NFISCAL IS NOT NULL AND SC9.C9_NFISCAL != ' ' THEN 'FATURADO'
+                        WHEN SC9.C9_BLEST IS NOT NULL AND SC9.C9_BLEST != '  ' THEN 'BLOQ_ESTOQUE'
+                        WHEN SC9.C9_BLCRED IS NOT NULL AND SC9.C9_BLCRED != '  ' THEN 'BLOQ_CREDITO'
+                        WHEN SC9.C9_OK = 'S' THEN 'LIBERADO'
+                        ELSE 'PENDENTE'
+                    END
+                ORDER BY valor_total DESC
+            """
             
             cursor.execute(sql, params)
-            armazens = [row[0] for row in cursor.fetchall()]
+            columns = [col[0].lower() for col in cursor.description]
             
-            logger.info(f"SD3 - Encontrados {len(armazens)} armazéns com movimentação: {armazens}")
-            return armazens
+            results = []
+            for row in cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            
+            return results
+
+    @staticmethod
+    def get_pending_deliveries(filial=None, local=None):
+        """
+        Busca liberações pendentes de faturamento
+        """
+        with connections['protheus'].cursor() as cursor:
+            sql = """
+                SELECT 
+                    SC9.C9_FILIAL as filial,
+                    SC9.C9_PEDIDO as pedido,
+                    SC9.C9_PRODUTO as produto,
+                    SB1.B1_DESC as descricao,
+                    SC9.C9_LOCAL as local,
+                    SUM(SC9.C9_QTDLIB) as total_liberado,
+                    SUM(SC9.C9_QTDLIB * SC9.C9_PRCVEN) as valor_total,
+                    MIN(SC9.C9_DATALIB) as primeira_liberacao,
+                    MAX(SC9.C9_DATALIB) as ultima_liberacao,
+                    COUNT(*) as total_itens
+                FROM SC9010 SC9
+                LEFT JOIN SB1010 SB1 ON (
+                    SC9.C9_FILIAL = SB1.B1_FILIAL 
+                    AND SC9.C9_PRODUTO = SB1.B1_COD
+                    AND SB1.D_E_L_E_T_ = ' '
+                )
+                WHERE SC9.D_E_L_E_T_ = ' '
+                AND SC9.C9_QTDLIB > 0
+                AND (SC9.C9_NFISCAL IS NULL OR SC9.C9_NFISCAL = ' ')
+                AND (SC9.C9_BLEST IS NULL OR SC9.C9_BLEST = '  ')
+                AND (SC9.C9_BLCRED IS NULL OR SC9.C9_BLCRED = '  ')
+            """
+            
+            params = []
+            
+            if filial:
+                sql += " AND SC9.C9_FILIAL = %s"
+                params.append(filial)
+            
+            if local:
+                sql += " AND SC9.C9_LOCAL = %s"
+                params.append(local)
+            
+            sql += """
+                GROUP BY SC9.C9_FILIAL, SC9.C9_PEDIDO, SC9.C9_PRODUTO, 
+                         SB1.B1_DESC, SC9.C9_LOCAL
+                ORDER BY primeira_liberacao ASC
+            """
+            
+            cursor.execute(sql, params)
+            columns = [col[0].lower() for col in cursor.description]
+            
+            results = []
+            for row in cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            
+            return results

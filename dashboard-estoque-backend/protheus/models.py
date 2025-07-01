@@ -72,3 +72,61 @@ class ProtheusSD3(models.Model):
 
     def __str__(self):
         return f'{self.D3_DOC} - {self.D3_COD} ({self.D3_TM})'
+
+class ProtheusSC9(models.Model):
+    """
+    Modelo para mapear a tabela SC9 (Liberações/Entregas) do Protheus.
+    Controla as liberações de pedidos para faturamento e entrega.
+    """
+    C9_FILIAL = models.CharField(max_length=2, verbose_name='Filial')
+    C9_PEDIDO = models.CharField(max_length=6, verbose_name='Número do Pedido')
+    C9_ITEM = models.CharField(max_length=2, verbose_name='Item do Pedido')
+    C9_SEQUEN = models.CharField(max_length=3, verbose_name='Sequência')
+    C9_PRODUTO = models.CharField(max_length=15, verbose_name='Código do Produto')
+    C9_QTDLIB = models.FloatField(verbose_name='Quantidade Liberada')
+    C9_PRCVEN = models.FloatField(verbose_name='Preço de Venda')
+    C9_DATALIB = models.DateField(verbose_name='Data de Liberação', null=True, blank=True)
+    C9_LOCAL = models.CharField(max_length=2, verbose_name='Local/Armazém')
+    C9_LOTECTL = models.CharField(max_length=10, verbose_name='Lote', blank=True, null=True)
+    C9_NUMLOTE = models.CharField(max_length=6, verbose_name='Sub-Lote', blank=True, null=True)
+    C9_DTVALID = models.DateField(verbose_name='Data de Validade', null=True, blank=True)
+    C9_POTENCI = models.FloatField(verbose_name='Potência', default=0)
+    C9_QTDLIB2 = models.FloatField(verbose_name='Quantidade na 2ª UM', default=0)
+    C9_AGREG = models.CharField(max_length=1, verbose_name='Agregado', blank=True, null=True)
+    C9_SERVIC = models.CharField(max_length=3, verbose_name='Código do Serviço', blank=True, null=True)
+    C9_ORDSEP = models.CharField(max_length=6, verbose_name='Ordem de Separação', blank=True, null=True)
+    
+    # Campos de Bloqueio/Status
+    C9_BLEST = models.CharField(max_length=2, verbose_name='Bloqueio de Estoque', blank=True, null=True)
+    C9_BLCRED = models.CharField(max_length=2, verbose_name='Bloqueio de Crédito', blank=True, null=True)
+    C9_OK = models.CharField(max_length=2, verbose_name='Liberação OK', blank=True, null=True)
+    C9_NFISCAL = models.CharField(max_length=9, verbose_name='Nota Fiscal', blank=True, null=True)
+    C9_SERIENF = models.CharField(max_length=3, verbose_name='Série NF', blank=True, null=True)
+    
+    # Campo de deleção
+    D_E_L_E_T = models.CharField(max_length=1, db_column='D_E_L_E_T_', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'SC9010'
+        app_label = 'protheus'
+        verbose_name = 'Liberação/Entrega'
+        verbose_name_plural = 'Liberações/Entregas'
+        unique_together = ('C9_FILIAL', 'C9_PEDIDO', 'C9_ITEM', 'C9_SEQUEN')
+
+    def __str__(self):
+        return f'{self.C9_FILIAL} - {self.C9_PEDIDO}/{self.C9_ITEM} - {self.C9_PRODUTO}'
+
+    @property
+    def status_liberacao(self):
+        """Retorna o status da liberação baseado nos campos de bloqueio"""
+        if self.C9_NFISCAL and self.C9_NFISCAL.strip():
+            return 'FATURADO'
+        elif self.C9_BLEST and self.C9_BLEST.strip():
+            return 'BLOQ_ESTOQUE'
+        elif self.C9_BLCRED and self.C9_BLCRED.strip():
+            return 'BLOQ_CREDITO'
+        elif self.C9_OK and self.C9_OK.strip() == 'S':
+            return 'LIBERADO'
+        else:
+            return 'PENDENTE'
