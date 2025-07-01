@@ -132,6 +132,136 @@ Sistema backend Django REST API para integração completa com o ERP **Protheus 
 
 ---
 
+# 📊 Dashboard Estoque Frontend
+
+Frontend React para visualização de dados de estoque do sistema Protheus.
+
+## 🚀 Tecnologias
+
+- **React 18** - Framework principal
+- **SCSS** - Estilização modular
+- **Axios** - Requisições HTTP
+- **CSS Grid/Flexbox** - Layout responsivo
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/           # Componentes React
+│   ├── common/          # Componentes reutilizáveis
+│   ├── StockTable/      # Tabela de estoque
+│   └── Layout/          # Layout principal
+├── services/            # Serviços de API
+├── hooks/               # Custom hooks
+├── utils/               # Utilitários
+└── styles/              # Estilos globais
+```
+
+## 🛠️ Instalação
+
+```bash
+# Instalar dependências
+npm install
+
+# Configurar variáveis de ambiente
+cp .env.example .env
+
+# Iniciar desenvolvimento
+npm start
+```
+
+## 🔧 Configuração
+
+Configure as variáveis no arquivo `.env`:
+
+```env
+REACT_APP_API_BASE_URL=http://127.0.0.1:8000/api/v1
+REACT_APP_API_TIMEOUT=30000
+```
+
+## 📊 Funcionalidades
+
+- ✅ **Visualização completa** dos dados SB2 (Saldos em Estoque)
+- ✅ **Paginação** com controle de itens por página
+- ✅ **Filtros** por filial e armazém
+- ✅ **Status calculados** em tempo real
+- ✅ **Design responsivo** para mobile e desktop
+- ✅ **Loading states** e tratamento de erros
+
+## 🎨 Componentes Principais
+
+### StockTable
+Componente principal que gerencia a tabela de estoque com:
+- Carregamento de dados
+- Filtros e paginação
+- Estados de loading e erro
+
+### StockRow
+Linha da tabela apresentando todos os campos SB2:
+- Dados básicos (filial, código, descrição)
+- Quantidades (atual, reservada, pedidos)
+- Status calculados (disponível, % reservado)
+
+### StockFilters
+Filtros para refinamento dos dados:
+- Filtro por filial
+- Filtro por armazém
+- Seleção de itens por página
+
+## 🔄 Integração com Backend
+
+O frontend consome a API Django REST em:
+- `GET /api/v1/stocks/` - Dados de estoque paginados
+- Filtros: `filial`, `armazem`, `page`, `page_size`
+
+## 📱 Responsividade
+
+- **Mobile First** - Design otimizado para dispositivos móveis
+- **Breakpoints** - sm (640px), md (768px), lg (1024px), xl (1280px)
+- **Tabela responsiva** - Scroll horizontal em telas pequenas
+
+## 🎯 Scripts Disponíveis
+
+- `npm start` - Inicia servidor de desenvolvimento
+- `npm build` - Gera build de produção
+- `npm test` - Executa testes
+- `npm run eject` - Ejeta configuração (irreversível)
+
+## 🔍 Campos Exibidos
+
+### SB2 (Saldos em Estoque):
+- **B2_FILIAL** - Filial
+- **B2_COD** - Código do Produto
+- **B2_LOCAL** - Local/Armazém
+- **B2_QATU** - Quantidade Atual
+- **B2_RESERVA** - Quantidade Reservada
+- **B2_QPEDVEN** - Quantidade em Pedido de Venda
+
+### SB1 (Produtos) - Dados Relacionados:
+- **B1_DESC** - Descrição do Produto
+- **B1_TIPO** - Tipo do Produto
+- **B1_UM** - Unidade de Medida
+- **B1_GRUPO** - Grupo do Produto
+
+### Campos Calculados:
+- **Saldo Disponível** - B2_QATU - B2_RESERVA
+- **% Reservado** - (B2_RESERVA / B2_QATU) * 100
+- **Status** - Baseado nos saldos disponíveis
+
+## 🚀 Deploy
+
+Para produção, configure:
+
+```env
+REACT_APP_API_BASE_URL=https://sua-api-producao.com/api/v1
+```
+
+E execute:
+
+```bash
+npm run build
+```
+
 ### 🚚 4. Liberações/Entregas (SC9) - **NOVO**
 
 #### `GET /api/v1/deliveries/`

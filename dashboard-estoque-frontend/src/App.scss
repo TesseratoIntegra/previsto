@@ -1,0 +1,166 @@
+@import './styles/globals';
+
+.App {
+  min-height: 100vh;
+  background-color: $bg-secondary;
+  display: flex;
+  flex-direction: column;
+}
+
+// Estilos específicos para componentes de alto nível
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  background-color: $bg-primary;
+  border-bottom: 1px solid $border-light;
+  box-shadow: $shadow-sm;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Importante para flex containers
+}
+
+.app-content {
+  flex: 1;
+  padding: $space-6 0;
+  
+  @include respond-to(md) {
+    padding: $space-8 0;
+  }
+}
+
+.app-footer {
+  margin-top: auto;
+  padding: $space-4 0;
+  background-color: $bg-primary;
+  border-top: 1px solid $border-light;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  text-align: center;
+}
+
+// Estilos para estados globais da aplicação
+.app-offline {
+  background-color: $warning-color;
+  color: white;
+  padding: $space-2;
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.app-maintenance {
+  background-color: $info-color;
+  color: white;
+  padding: $space-3;
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+// Estilos para notificações toast (se necessário)
+.app-toast {
+  position: fixed;
+  top: $space-4;
+  right: $space-4;
+  z-index: $z-modal;
+  max-width: 400px;
+  padding: $space-4;
+  background-color: $bg-primary;
+  border: 1px solid $border-light;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xl;
+  
+  &--success {
+    border-left: 4px solid $success-color;
+  }
+  
+  &--warning {
+    border-left: 4px solid $warning-color;
+  }
+  
+  &--error {
+    border-left: 4px solid $danger-color;
+  }
+  
+  &--info {
+    border-left: 4px solid $info-color;
+  }
+}
+
+// Media queries específicas da aplicação
+@include respond-to(sm) {
+  .App {
+    font-size: $font-size-base;
+  }
+}
+
+@include respond-to(md) {
+  .App {
+    // Estilos específicos para tablets
+  }
+}
+
+@include respond-to(lg) {
+  .App {
+    // Estilos específicos para desktop
+  }
+}
+
+// Animações globais da aplicação
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.app-fade-in {
+  animation: app-fade-in 0.3s ease-out;
+}
+
+.app-slide-in {
+  animation: app-slide-in 0.3s ease-out;
+}
+
+// Estilos para modo escuro (preparação)
+.app-dark-mode {
+  .App {
+    background-color: #1e293b;
+    color: #f1f5f9;
+  }
+}
+
+// Print styles
+@media print {
+  .App {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .app-header,
+  .app-footer,
+  .btn,
+  button {
+    display: none !important;
+  }
+}

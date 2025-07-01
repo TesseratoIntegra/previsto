@@ -1,0 +1,125 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.stock-table {
+  @include card;
+  padding: $space-6;
+  
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: $space-6;
+    flex-wrap: wrap;
+    gap: $space-4;
+  }
+  
+  &__title {
+    h1 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      margin-bottom: $space-2;
+      
+      @include respond-to(md) {
+        font-size: $font-size-3xl;
+      }
+    }
+    
+    p {
+      font-size: $font-size-base;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+  }
+  
+  &__actions {
+    display: flex;
+    gap: $space-3;
+    align-items: center;
+  }
+  
+  &__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-4;
+    padding: $space-3 $space-4;
+    background-color: $bg-secondary;
+    border-radius: $radius-md;
+    flex-wrap: wrap;
+    gap: $space-2;
+  }
+  
+  &__count {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+  }
+  
+  &__page-info {
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+  
+  &__container {
+    position: relative;
+    margin-bottom: $space-6;
+  }
+  
+  &__wrapper {
+    overflow-x: auto;
+    border: 1px solid $table-border-color;
+    border-radius: $radius-lg;
+    
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: $bg-secondary;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: $border-medium;
+      border-radius: $radius-base;
+    }
+  }
+  
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
+    background-color: $bg-primary;
+  }
+  
+  &__loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba($bg-primary, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  &__empty {
+    text-align: center;
+    padding: $space-12;
+    color: $text-secondary;
+    
+    h3 {
+      font-size: $font-size-lg;
+      margin-bottom: $space-2;
+      color: $text-primary;
+    }
+    
+    p {
+      font-size: $font-size-base;
+      line-height: 1.6;
+    }
+  }
+}

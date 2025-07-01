@@ -1,0 +1,115 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-4 0;
+  margin-top: $space-6;
+  border-top: 1px solid $border-light;
+  flex-wrap: wrap;
+  gap: $space-4;
+  
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: $space-4;
+  }
+  
+  &__page-size {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    
+    label {
+      font-weight: $font-weight-medium;
+    }
+  }
+  
+  &__select {
+    padding: $space-1 $space-2;
+    border: 1px solid $border-medium;
+    border-radius: $radius-base;
+    font-size: $font-size-sm;
+    background-color: $bg-primary;
+    color: $text-primary;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+  
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+  }
+  
+  &__pages {
+    display: flex;
+    gap: $space-1;
+  }
+  
+  &__btn {
+    padding: $space-2 $space-3;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    border: 1px solid $border-medium;
+    border-radius: $radius-base;
+    background-color: $bg-primary;
+    color: $text-primary;
+    cursor: pointer;
+    transition: $transition-base;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover:not(:disabled) {
+      background-color: $bg-secondary;
+      border-color: $border-dark;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    &--active {
+      background-color: $primary-color;
+      color: $text-white;
+      border-color: $primary-color;
+      
+      &:hover {
+        background-color: darken($primary-color, 8%);
+      }
+    }
+    
+    &--dots {
+      border: none;
+      background: none;
+      cursor: default;
+      
+      &:hover {
+        background: none;
+        border: none;
+      }
+    }
+    
+    &--prev, &--next {
+      min-width: auto;
+      padding: $space-2 $space-4;
+    }
+  }
+}

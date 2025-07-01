@@ -1,0 +1,165 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.stock-row {
+  border-bottom: 1px solid $border-light;
+  transition: background-color $transition-fast;
+  
+  &:hover {
+    background-color: $table-row-hover;
+  }
+  
+  &--even {
+    background-color: $bg-primary;
+  }
+  
+  &--odd {
+    background-color: $table-row-stripe;
+  }
+  
+  &__cell {
+    padding: $space-3 $space-4;
+    vertical-align: middle;
+    border-right: 1px solid $border-light;
+    
+    &:last-child {
+      border-right: none;
+    }
+    
+    &--filial, &--local, &--tipo, &--um {
+      text-align: center;
+    }
+    
+    &--codigo {
+      font-family: $font-family-mono;
+    }
+    
+    &--descricao {
+      max-width: 300px;
+    }
+    
+    &--saldo-atual, &--reserva, &--pedido-venda, &--disponivel {
+      text-align: right;
+    }
+    
+    &--perc-reservado, &--status {
+      text-align: center;
+    }
+  }
+  
+  &__badge {
+    display: inline-block;
+    padding: $space-1 $space-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    border-radius: $radius-base;
+    
+    &--filial {
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+      border: 1px solid rgba($primary-color, 0.2);
+    }
+    
+    &--local {
+      background-color: rgba($info-color, 0.1);
+      color: $info-color;
+      border: 1px solid rgba($info-color, 0.2);
+    }
+    
+    &--tipo {
+      background-color: rgba($secondary-color, 0.1);
+      color: $secondary-color;
+      border: 1px solid rgba($secondary-color, 0.2);
+    }
+  }
+  
+  &__code {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background-color: rgba($secondary-color, 0.05);
+    padding: $space-1 $space-2;
+    border-radius: $radius-sm;
+  }
+  
+  &__description {
+    @include text-truncate;
+    display: block;
+    max-width: 100%;
+    font-size: $font-size-sm;
+    color: $text-primary;
+    line-height: 1.4;
+  }
+  
+  &__text {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+  
+  &__number {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    
+    &--primary {
+      color: $text-primary;
+    }
+    
+    &--success {
+      color: $success-color;
+    }
+    
+    &--warning {
+      color: $warning-color;
+    }
+    
+    &--danger {
+      color: $danger-color;
+    }
+    
+    &--info {
+      color: $info-color;
+    }
+  }
+  
+  &__percentage {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+  }
+  
+  &__status {
+    @include status-badge($success-color);
+    
+    &--disponivel {
+      @include status-badge($status-disponivel);
+    }
+    
+    &--baixo {
+      @include status-badge($status-baixo);
+    }
+    
+    &--sem-estoque {
+      @include status-badge($status-sem-estoque);
+    }
+    
+    &--alta-reserva {
+      @include status-badge($status-alta-reserva);
+    }
+    
+    &--default {
+      @include status-badge($text-muted);
+    }
+  }
+}main {
+    flex: 1;
+    padding: $space-6 0;
+    
+    @include respond-to(md) {
+      padding: $space-8 0;
+    }
+  }
+  
+  

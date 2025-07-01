@@ -1,0 +1,80 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.stock-header {
+  background-color: $table-header-bg;
+  
+  &__row {
+    border-bottom: 2px solid $border-medium;
+  }
+  
+  &__cell {
+    padding: $space-3 $space-4;
+    text-align: left;
+    border-right: 1px solid $border-light;
+    position: relative;
+    min-width: 120px;
+    
+    &:last-child {
+      border-right: none;
+    }
+    
+    // Larguras específicas das colunas
+    &--filial, &--local, &--tipo, &--um {
+      min-width: 80px;
+      max-width: 100px;
+    }
+    
+    &--codigo {
+      min-width: 140px;
+      max-width: 160px;
+    }
+    
+    &--descricao {
+      min-width: 200px;
+      max-width: 300px;
+    }
+    
+    &--grupo {
+      min-width: 100px;
+      max-width: 120px;
+    }
+    
+    &--saldo-atual, &--reserva, &--pedido-venda, &--disponivel {
+      min-width: 120px;
+      max-width: 140px;
+      text-align: right;
+    }
+    
+    &--perc-reservado {
+      min-width: 100px;
+      max-width: 120px;
+      text-align: center;
+    }
+    
+    &--status {
+      min-width: 130px;
+      max-width: 150px;
+      text-align: center;
+    }
+  }
+  
+  &__label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin-bottom: $space-1;
+    line-height: 1.3;
+  }
+  
+  &__field {
+    display: block;
+    font-size: $font-size-xs;
+    color: $text-muted;
+    font-family: $font-family-mono;
+    font-weight: $font-weight-normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
